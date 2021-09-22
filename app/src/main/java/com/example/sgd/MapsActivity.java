@@ -9,8 +9,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.sgd.databinding.ActivityMapsBinding;
+
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -44,8 +46,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng singapore = new LatLng(1.373600, 103.806117);
+        LatLngBounds sgBounds = new LatLngBounds(
+                new LatLng(1.14916, 103.598487), // SW bounds
+                new LatLng(1.47317, 104.092349)  // NE bounds
+        );
+        //mMap.addMarker(new MarkerOptions().position(singapore).title("Marker in Singapore"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sgBounds.getCenter(),13));
+
+
     }
 }
