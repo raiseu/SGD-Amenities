@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_supermarkets"
+        android:icon="@drawable/ic_baseline_shopping_cart_24"
+        android:title="Supermarkets" />
+
+    <item
+        android:id="@+id/nav_restaurant"
+        android:icon="@drawable/ic_baseline_restaurant_24"
+        android:title="Restaurant" />
+
+    <item
+        android:id="@+id/nav_atm"
+        android:icon="@drawable/ic_baseline_local_atm_24"
+        android:title="ATM" />
+
+</menu>
