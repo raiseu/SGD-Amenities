@@ -1,10 +1,18 @@
 package com.example.sgd;
 
-import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.FragmentActivity;
-
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
+import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.example.sgd.databinding.ActivityMapsBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -12,45 +20,47 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.example.sgd.databinding.ActivityMapsBinding;
-
-import android.location.Address;
-import android.location.Geocoder;
 
 import java.io.IOException;
 import java.util.List;
-
-
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-
-
-
-import androidx.fragment.app.Fragment;
-import android.view.MenuItem;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
     SearchView searchView;
+    Button firstFragmentBtn, secondFragmentBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-        //bottomNav.setOnNavigationItemSelectedListener(navListener);
 
-        //if (savedInstanceState == null) {
-         //   getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-        //            new AtmFragment()).commit();
-        //}
+        //setContentView(R.layout.activity_maps);
+        firstFragmentBtn = findViewById(R.id.fragment1btn);
+        secondFragmentBtn = findViewById(R.id.fragment2btn);
+
+
+        firstFragmentBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               // FragmentTransaction t = getSupportFragmentManager().beginTransaction();
+               // t.replace(R.id.layout, new SupermarketFragment()).commit();
+            }
+        });
+/*
+        secondFragmentBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                replaceFragment(new AtmFragment());
+
+            }
+        });*/
+
 
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        //setContentView(R.layout.activity_maps);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         searchView = findViewById(R.id.idSearchView);
@@ -110,28 +120,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(MenuItem item) {
-                    Fragment selectedFragment = null;
+    private void replaceFragment(Fragment fragment) {
 
-                    switch (item.getItemId()) {
-                        case R.id.nav_supermarkets:
-                            selectedFragment = new SupermarketFragment();
-                            break;
-                        case R.id.nav_restaurant:
-                            selectedFragment = new RestaurantFragment();
-                            break;
-                        case R.id.nav_atm:
-                            selectedFragment = new AtmFragment();
-                            break;
-                    }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.layout,fragment);
+        fragmentTransaction.commit();
 
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                            selectedFragment).commit();
-
-                    return true;
-                }
-            };
+    }
 }
