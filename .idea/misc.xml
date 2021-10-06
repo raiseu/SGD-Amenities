@@ -5,13 +5,23 @@
       <map>
         <entry key="..\:/Users/neowe/AndroidStudioProjects/SGD/app/src/main/res/layout/activity_maps.xml" value="0.2" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/drawable/ic_baseline_shopping_cart_24.xml" value="0.14635416666666667" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/drawable/ic_favorite_24.xml" value="0.14791666666666667" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/drawable/ic_favorite_border_24.xml" value="0.14791666666666667" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/drawable/ic_supermarkets.xml" value="0.14635416666666667" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/drawable/rouncorner.xml" value="0.24166666666666667" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/drawable/roundcorner.xml" value="0.14791666666666667" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/drawable/toggle_selector.xml" value="0.14791666666666667" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/activity_main.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/activity_maps.xml" value="0.25" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/fragment_map.xml" value="0.13360507246376813" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/fragment_supermarkets.xml" value="0.24010416666666667" />
-        <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/main_activity.xml" value="0.1" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/grid_bar.xml" value="0.17844202898550723" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/grid_single.xml" value="0.12760416666666666" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/horizontal_bar_item.xml" value="0.14447463768115942" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/horziontal_single.xml" value="0.13177083333333334" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/main_activity.xml" value="0.11927083333333334" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/map_fragment.xml" value="0.13020833333333334" />
+        <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/roundcorner.xml" value="0.14447463768115942" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/layout/supermarkets_fragment.xml" value="0.13177083333333334" />
       </map>
     </option>

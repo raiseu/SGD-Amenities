@@ -102,7 +102,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         try{
 
             int id = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
-            Log.v(debugTag + "rid", String.valueOf(id));
+            //Log.v(debugTag + "rid", String.valueOf(id));
             //Drawable drawable = getResources().getDrawable(getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName()));
             //Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
             //bitmap = Bitmap.createScaledBitmap(bitmap, 19, 19, false);
