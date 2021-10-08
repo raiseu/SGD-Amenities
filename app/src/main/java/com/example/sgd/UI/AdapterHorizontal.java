@@ -17,27 +17,30 @@ import com.example.sgd.R;
 import java.util.ArrayList;
 
 public class AdapterHorizontal extends RecyclerView.Adapter<AdapterHorizontal.ViewHold>{
-
     private Context mcontext;
-    String debugTag = "dbug:AdapterHori";
+    IUserRecycler mListener;
     ArrayList<HorizontalBar> gridLocations;
-    final private ListItemClickListener mOnClickListener;
+    //final private ListItemClickListener mOnClickListener;
 
-    public AdapterHorizontal(Context c, ArrayList<HorizontalBar> gridLocations, ListItemClickListener listener) {
+    public AdapterHorizontal(Context c, ArrayList<HorizontalBar> gridLocations, IUserRecycler listener) {
         this.mcontext = c;
         this.gridLocations = gridLocations;
-        mOnClickListener = listener;
+        this.mListener = listener;
+        //mOnClickListener = listener;
     }
     @Override
     public ViewHold onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mcontext).inflate(R.layout.horizontal_bar_item, parent, false);
-        return new ViewHold(view);
+        ViewHold viewhold = new ViewHold(view, mListener);
+
+        return viewhold;
     }
     @Override
     public void onBindViewHolder(ViewHold holder, int position) {
         HorizontalBar helper = gridLocations.get(position);
         holder.imagee.setImageResource(helper.getImage());
         holder.title.setText(helper.getTitle());
+        holder.position = holder.getAdapterPosition();
     }
     @Override
     public int getItemCount() {
@@ -46,29 +49,53 @@ public class AdapterHorizontal extends RecyclerView.Adapter<AdapterHorizontal.Vi
     public interface ListItemClickListener {
         void onHorizontalListClick(int clickedItemIndex);
     }
-    public class ViewHold extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+    public interface OnItemClickListener {
+        public void onItemClick(View view, int position);
+
+        public void onLongItemClick(View view, int position);
+    }
+
+    //public interface OnItemClickListener{
+    //  void onItemClick(int clickedItemIndex);
+    //}
+    public class ViewHold extends RecyclerView.ViewHolder{
         //ImageView image;
         ImageButton imagee;
         TextView title;
         RelativeLayout relativeLayout;
+        int position;
+        IUserRecycler mListener;
+        HorizontalBar helper;
 
-        public ViewHold(View itemView) {
+        public ViewHold(View itemView, IUserRecycler mListener) {
             super(itemView);
-            itemView.setOnClickListener(this);
+            this.mListener = mListener;
+            //itemView.setOnClickListener(this);
             imagee = itemView.findViewById(R.id.horizontal_image);
             title = itemView.findViewById(R.id.horizontal_title);
             relativeLayout = itemView.findViewById(R.id.background_color);
+
+            itemView.findViewById(R.id.horizontal_image).setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    //Toast.makeText(v.getContext(), "You clicked " + position, Toast.LENGTH_SHORT).show();
+                    Log.d("demo","onclick: item clicked " + position);
+                    mListener.CallLocations(position, helper);
+                }
+            });
         }
+        /*
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
             Log.v(debugTag, "onclicked");
             mOnClickListener.onHorizontalListClick(clickedPosition);
-
-        }
-
-
+        }*/
     }
 
+    public interface IUserRecycler{
+        void CallLocations(int position, HorizontalBar helper);
+    }
 
 }

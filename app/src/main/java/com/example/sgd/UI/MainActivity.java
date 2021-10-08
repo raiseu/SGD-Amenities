@@ -18,7 +18,7 @@ import com.example.sgd.R;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements AdapterHorizontal.ListItemClickListener{
+public class MainActivity extends AppCompatActivity implements AdapterHorizontal.IUserRecycler{
 
     Button marketBtn;
     MapFragment mFragment;
@@ -31,10 +31,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
 
     String[] web = {
-            "Supermarkets", "Google", "Google", "Google", "Google", "Google", "Google", "Google", "Google", "Google", "Google", "Google", "Google", "Google", "Google", "Google"
+            "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy ", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries",
     } ;
     int[] imageId = {
-            R.drawable.ic_supermarkets, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24,
             R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24,
             R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24,
             R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24,
@@ -81,19 +80,29 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     }
 
     @Override
-    public void onHorizontalListClick(int clickedItemIndex) {
-        //Log.v(debugTag, String.valueOf(clickedItemIndex));
+    public void CallLocations(int position, HorizontalBar helper) {
         AsyncJobz as = new AsyncJobz();
-        switch(clickedItemIndex){
+        switch(position){
             case 0:
+                ///Toast.makeText(MapsActivity.this, "HORIZONTALBAR You Clicked at " + position, Toast.LENGTH_SHORT).show();
+                Log.d("call","horizontal bar call location " + position);
                 as.execute("supermarkets");
                 break;
             case 1:
+                Log.d("call","horizontal bar call location " + position);
                 break;
-
+            case 2:
+                Log.d("call","horizontal bar call location " + position);
+                break;
+            case 3:
+                Log.d("call","horizontal bar call location " + position);
+                break;
+            case 4:
+                Log.d("call","horizontal bar call location " + position);
+            case 5:
+                Log.d("call","horizontal bar call location " + position);
+                break;
         }
-
-
     }
 
     public class AsyncJobz extends AsyncTask<String, Integer, Void> {
