@@ -34,9 +34,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy ", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries",
     } ;
     int[] imageId = {
-            R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24,
-            R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24,
-            R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24, R.drawable.ic_baseline_local_atm_24,
+            R.drawable.ic_hdb_branches_50, R.drawable.ic_eldercare_50, R.drawable.ic_hsgb_safra_50, R.drawable.ic_hawkercentre_50,
+            R.drawable.ic_ssc_sports_facilities_50, R.drawable.ic_dsa_50, R.drawable.ic_exercisefacilities_50, R.drawable.ic_registered_pharmacy_50,
+            R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50,
     };
 
     @Override

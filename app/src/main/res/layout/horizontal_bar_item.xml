@@ -22,7 +22,7 @@
             android:clickable="true"
             android:contentDescription="ATM"
             android:src="@drawable/ic_supermarket_35"
-            android:tint="@color/black"></ImageButton>
+            ></ImageButton>
 
         <TextView
             android:autoSizeTextType="uniform"
