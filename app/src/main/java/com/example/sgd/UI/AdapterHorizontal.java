@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.sgd.Entity.HorizontalBar;
+import com.example.sgd.Entity.CustomGrid;
 import com.example.sgd.R;
 
 import java.util.ArrayList;
@@ -20,9 +20,9 @@ import java.util.ArrayList;
 public class AdapterHorizontal extends RecyclerView.Adapter<AdapterHorizontal.ViewHold>{
     private Context mcontext;
     IUserRecycler mListener;
-    ArrayList<HorizontalBar> gridLocations;
+    ArrayList<CustomGrid> gridLocations;
 
-    public AdapterHorizontal(Context c, ArrayList<HorizontalBar> gridLocations, IUserRecycler listener) {
+    public AdapterHorizontal(Context c, ArrayList<CustomGrid> gridLocations, IUserRecycler listener) {
         this.mcontext = c;
         this.gridLocations = gridLocations;
         this.mListener = listener;
@@ -36,7 +36,7 @@ public class AdapterHorizontal extends RecyclerView.Adapter<AdapterHorizontal.Vi
     }
     @Override
     public void onBindViewHolder(ViewHold holder, @SuppressLint("RecyclerView") int position) {
-        HorizontalBar helper = gridLocations.get(position);
+        CustomGrid helper = gridLocations.get(position);
         holder.imagee.setImageResource(helper.getImage());
         holder.title.setText(helper.getTitle());
         holder.position = holder.getAdapterPosition();
@@ -62,7 +62,7 @@ public class AdapterHorizontal extends RecyclerView.Adapter<AdapterHorizontal.Vi
         RelativeLayout relativeLayout;
         int position;
         IUserRecycler mListener;
-        HorizontalBar helper;
+        CustomGrid helper;
 
         public ViewHold(View itemView, IUserRecycler mListener) {
             super(itemView);
@@ -74,6 +74,6 @@ public class AdapterHorizontal extends RecyclerView.Adapter<AdapterHorizontal.Vi
     }
 
     public interface IUserRecycler{
-        void CallLocations(int position, HorizontalBar helper);
+        void CallLocations(int position, CustomGrid helper);
     }
 }

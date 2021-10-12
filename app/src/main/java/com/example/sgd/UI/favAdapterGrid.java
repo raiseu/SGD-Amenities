@@ -51,7 +51,7 @@ public class favAdapterGrid extends RecyclerView.Adapter<favAdapterGrid.ViewHold
 
         SharedPreferences sharedPrefs = mcontext.getSharedPreferences("com.example.sgd", Context.MODE_PRIVATE);
 
-        for(int i=0; i<12; i++) {
+        for(int i=0; i<13; i++) {
             if(sharedPrefs.getBoolean("ToggleButton" + i, false)){
                 holder.toggleButton.setChecked(sharedPrefs.getBoolean("ToggleButton" + i, false));
             }
@@ -72,9 +72,9 @@ public class favAdapterGrid extends RecyclerView.Adapter<favAdapterGrid.ViewHold
                     String[] web = {
                             "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres",
                             "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG",
-                            "Retail Pharmacy ", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries",
+                            "Retail Pharmacy ", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries", "Car Parks"
                     } ;
-                    for (int gridposition=0;gridposition<=12;gridposition++)
+                    for (int gridposition=0;gridposition<=13;gridposition++)
                     {
                         Log.d("ELSE","DELETING " + helper.title + position + gridposition);
                         Log.d("ELSE","printing" + helper.title + web[gridposition]);

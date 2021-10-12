@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sgd.Controller.SGDController;
-import com.example.sgd.Entity.HorizontalBar;
 import com.example.sgd.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -62,10 +61,10 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         horizontalRecycler = findViewById(R.id.my_recycler);
         horizontalRecycler.setHasFixedSize(true);
         horizontalRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        ArrayList<HorizontalBar> horizontalgrid = new ArrayList<>();
+        ArrayList<CustomGrid> horizontalgrid = new ArrayList<>();
         for(int i = 0; i < imageId.length; i++)
         {
-            horizontalgrid.add(new HorizontalBar(imageId[i], web[i]));
+            horizontalgrid.add(new CustomGrid(imageId[i], web[i]));
         }
         adapter = new AdapterHorizontal(getApplicationContext(),horizontalgrid, this);
         horizontalRecycler.setAdapter(adapter);
@@ -231,15 +230,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             }
         });
     }
-    @Override
-    public void CallLocations(int position, HorizontalBar helper) {
-        AsyncJobz as = new AsyncJobz();
-        switch(helper.getTitle()){
-            case "Supermarkets": Log.d("call","horizontal bar call location " + position + helper.getTitle());
-                as.execute("supermarkets");
-                break;
-        }
-    }
+
     public class AsyncJobz extends AsyncTask<String, Integer, Void> {
         @Override
         protected Void doInBackground(String... strings) {
@@ -279,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             case 10: Log.d("CallInsert","ToggleButton insert " + position);InsertFav(position, helper);break;
             case 11: Log.d("CallInsert","ToggleButton insert " + position);InsertFav(position, helper);break;
             case 12: Log.d("CallInsert","ToggleButton insert " + position);InsertFav(position, helper);break;
-
+            case 13: Log.d("CallInsert","ToggleButton insert " + position);InsertFav(position, helper);break;
         }
     }
     @Override
