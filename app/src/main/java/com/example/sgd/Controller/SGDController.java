@@ -79,7 +79,7 @@ public class SGDController {
                                     curObject.getString("DESCRIPTION"),
                                     curObject.getString("POSTCODE"),
                                     curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName);
+                            newAmen.setIconName("ic_" + themeName + "_25");
                             amenList.add(newAmen);
                             break;
                         case"hdb_branches":
