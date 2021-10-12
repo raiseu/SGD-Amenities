@@ -298,6 +298,39 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             case "Supermarkets": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("supermarkets");
                 break;
+            case "HDB Branches": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("hdb_branches");
+                break;
+            case "Hawker Centres": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("hawkercentre");
+                break;
+            case "Gyms@SG": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("exercisefacilities");
+                break;
+            case "SAFRA Centres": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("hsgb_safra");
+                break;
+            case "Community Clubs": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("communityclubs");
+                break;
+            case "Parks@SG": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("relaxsg");
+                break;
+            case "Libraries": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("libraries");
+                break;
+            case "Retail Pharmacy": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("registered_pharmacy");
+                break;
+            case "Eldercare Services": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("eldercare");
+                break;
+            case "SportSG Sport Facilities": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("ssc_sports_facilities");
+                break;
+            case "Designated Smoking Areas": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("dsa");
+                break;
         }
     }
 }

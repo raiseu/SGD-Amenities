@@ -71,13 +71,61 @@ public class SGDController {
                 for (int i = 1; i < jsonArray.length(); i++) {
                     //Log.v(debugTag ,String.valueOf(i));
                     curObject = (JSONObject) jsonArray.get(i);
-                    Amenities newAmen = new Amenities(
-                            curObject.getString("NAME"),
-                            curObject.getString("DESCRIPTION"),
-                            curObject.getString("POSTCODE"),
-                            curObject.getString("LatLng"));
-                    newAmen.setIconName("ic_" + themeName);
-                    amenList.add(newAmen);
+                    Amenities newAmen;
+                    switch (themeName){
+                        case"supermarkets":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    curObject.getString("DESCRIPTION"),
+                                    curObject.getString("POSTCODE"),
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName);
+                            amenList.add(newAmen);
+                            break;
+                        case"hdb_branches":
+                        case"hawkercentre":
+                        case"exercisefacilities":
+                        case"hsgb_safra":
+                        case"communityclubs":
+                        case"relaxsg":
+                        case"libraries":
+                        case"registered_pharmacy":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    curObject.getString("DESCRIPTION"),
+                                    curObject.getString("ADDRESSPOSTALCODE"),
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName);
+                            amenList.add(newAmen);
+                            break;
+                        case"eldercare":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    "NULL",
+                                    curObject.getString("ADDRESSPOSTALCODE"),
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName);
+                            amenList.add(newAmen);
+                            break;
+                        case"ssc_sports_facilities":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    curObject.getString("DESCRIPTION"),
+                                    curObject.getString("POSTAL_CODE"),
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName);
+                            amenList.add(newAmen);
+                            break;
+                        case"dsa":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    curObject.getString("DESCRIPTION"),
+                                    "NULL",
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName);
+                            amenList.add(newAmen);
+                            break;
+                    }
                 }
             }
             else{
