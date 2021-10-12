@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     Boolean checktoggle, check;
 
     String[] web = {
-            "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy ", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries","Car Parks"
+            "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries","Car Parks"
     } ;
     int[] imageId = {
             R.drawable.ic_hdb_branches_50, R.drawable.ic_eldercare_50, R.drawable.ic_hsgb_safra_50, R.drawable.ic_hawkercentre_50,
