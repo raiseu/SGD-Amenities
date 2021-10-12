@@ -84,7 +84,6 @@ public class SGDController {
                             break;
                         case"hdb_branches":
                         case"hawkercentre":
-                        case"exercisefacilities":
                         case"hsgb_safra":
                         case"communityclubs":
                         case"relaxsg":
@@ -99,6 +98,7 @@ public class SGDController {
                             amenList.add(newAmen);
                             break;
                         case"eldercare":
+                        case"exercisefacilities":
                             newAmen = new Amenities(
                                     curObject.getString("NAME"),
                                     "NULL",
