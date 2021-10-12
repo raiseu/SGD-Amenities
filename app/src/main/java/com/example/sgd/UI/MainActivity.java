@@ -37,12 +37,12 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     Boolean checktoggle, check;
 
     String[] web = {
-            "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy ", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries",
+            "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy ", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries","Car Parks"
     } ;
     int[] imageId = {
             R.drawable.ic_hdb_branches_50, R.drawable.ic_eldercare_50, R.drawable.ic_hsgb_safra_50, R.drawable.ic_hawkercentre_50,
             R.drawable.ic_ssc_sports_facilities_50, R.drawable.ic_dsa_50, R.drawable.ic_exercisefacilities_50, R.drawable.ic_registered_pharmacy_50,
-            R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50,
+            R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50,R.drawable.ic_carparks50
     };
 
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
@@ -279,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             case 10: Log.d("CallInsert","ToggleButton insert " + position);InsertFav(position, helper);break;
             case 11: Log.d("CallInsert","ToggleButton insert " + position);InsertFav(position, helper);break;
             case 12: Log.d("CallInsert","ToggleButton insert " + position);InsertFav(position, helper);break;
+
         }
     }
     @Override
