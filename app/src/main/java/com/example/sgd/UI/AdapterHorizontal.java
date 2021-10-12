@@ -1,5 +1,6 @@
 package com.example.sgd.UI;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,13 +21,11 @@ public class AdapterHorizontal extends RecyclerView.Adapter<AdapterHorizontal.Vi
     private Context mcontext;
     IUserRecycler mListener;
     ArrayList<HorizontalBar> gridLocations;
-    //final private ListItemClickListener mOnClickListener;
 
     public AdapterHorizontal(Context c, ArrayList<HorizontalBar> gridLocations, IUserRecycler listener) {
         this.mcontext = c;
         this.gridLocations = gridLocations;
         this.mListener = listener;
-        //mOnClickListener = listener;
     }
     @Override
     public ViewHold onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -36,31 +35,28 @@ public class AdapterHorizontal extends RecyclerView.Adapter<AdapterHorizontal.Vi
         return viewhold;
     }
     @Override
-    public void onBindViewHolder(ViewHold holder, int position) {
+    public void onBindViewHolder(ViewHold holder, @SuppressLint("RecyclerView") int position) {
         HorizontalBar helper = gridLocations.get(position);
         holder.imagee.setImageResource(helper.getImage());
         holder.title.setText(helper.getTitle());
         holder.position = holder.getAdapterPosition();
+
+        ImageButton imageButton;
+        imageButton = holder.imagee.findViewById(R.id.horizontal_image);
+
+        imageButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Log.d("test","onclick: item clicked " + position);
+                mListener.CallLocations(position, helper);
+            }
+        });
     }
     @Override
     public int getItemCount() {
         return gridLocations.size();
     }
-    public interface ListItemClickListener {
-        void onHorizontalListClick(int clickedItemIndex);
-    }
-
-    public interface OnItemClickListener {
-        public void onItemClick(View view, int position);
-
-        public void onLongItemClick(View view, int position);
-    }
-
-    //public interface OnItemClickListener{
-    //  void onItemClick(int clickedItemIndex);
-    //}
     public class ViewHold extends RecyclerView.ViewHolder{
-        //ImageView image;
         ImageButton imagee;
         TextView title;
         RelativeLayout relativeLayout;
@@ -71,31 +67,13 @@ public class AdapterHorizontal extends RecyclerView.Adapter<AdapterHorizontal.Vi
         public ViewHold(View itemView, IUserRecycler mListener) {
             super(itemView);
             this.mListener = mListener;
-            //itemView.setOnClickListener(this);
             imagee = itemView.findViewById(R.id.horizontal_image);
             title = itemView.findViewById(R.id.horizontal_title);
             relativeLayout = itemView.findViewById(R.id.background_color);
-
-            itemView.findViewById(R.id.horizontal_image).setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    //Toast.makeText(v.getContext(), "You clicked " + position, Toast.LENGTH_SHORT).show();
-                    Log.d("demo","onclick: item clicked " + position);
-                    mListener.CallLocations(position, helper);
-                }
-            });
         }
-        /*
-        @Override
-        public void onClick(View v) {
-            int clickedPosition = getAdapterPosition();
-            Log.v(debugTag, "onclicked");
-            mOnClickListener.onHorizontalListClick(clickedPosition);
-        }*/
     }
 
     public interface IUserRecycler{
         void CallLocations(int position, HorizontalBar helper);
     }
-
 }

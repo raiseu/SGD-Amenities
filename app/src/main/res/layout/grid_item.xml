@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="150dp"
+    android:layout_height="180dp"
+    android:background="@android:color/darker_gray"
+    android:id="@+id/grid_Cardview">
+    <RelativeLayout
+        android:id="@+id/background_color"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/darker_gray"
+        android:padding="5dp">
+
+        <ImageButton
+            android:id="@+id/grid_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="40dp"
+            android:background="@drawable/roundcorner"
+            android:clickable="true"
+            android:contentDescription="ATM"
+            android:src="@drawable/ic_supermarket_35"
+            android:tint="@color/black"></ImageButton>
+
+        <TextView
+            android:autoSizeTextType="uniform"
+            android:id="@+id/grid_title"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="55dp"
+            android:layout_marginLeft="20dp"
+            android:gravity="center"
+            android:text="Supermarkets"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:textStyle="bold"></TextView>
+
+        <ToggleButton
+            android:id="@+id/grid_fav_toggle_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginLeft="47dp"
+            android:layout_marginTop="105dp"
+            android:height="100dp"
+            android:background="@drawable/toggle_selector"
+            android:onClick="onCustomDefaultToggleClick"
+            android:paddingTop="5dp"
+            android:textOff=""
+            android:textOn="" />
+    </RelativeLayout>
+</FrameLayout>

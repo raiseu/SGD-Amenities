@@ -4,8 +4,16 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/ASGD/app/src/main/res/drawable-v24/ic_supermarket_35.xml" value="0.35625" />
+        <entry key="..\:/ASGD/app/src/main/res/drawable/ic_favorite_24.xml" value="0.25729166666666664" />
+        <entry key="..\:/ASGD/app/src/main/res/drawable/ic_favorite_border_24.xml" value="0.30625" />
+        <entry key="..\:/ASGD/app/src/main/res/drawable/toggle_selector.xml" value="0.30625" />
+        <entry key="..\:/ASGD/app/src/main/res/layout/fav_grid.xml" value="0.29010416666666666" />
+        <entry key="..\:/ASGD/app/src/main/res/layout/fav_grid_item.xml" value="0.29010416666666666" />
+        <entry key="..\:/ASGD/app/src/main/res/layout/grid.xml" value="0.29010416666666666" />
+        <entry key="..\:/ASGD/app/src/main/res/layout/grid_item.xml" value="0.29010416666666666" />
         <entry key="..\:/ASGD/app/src/main/res/layout/horizontal_bar_item.xml" value="0.2798913043478261" />
         <entry key="..\:/ASGD/app/src/main/res/layout/main_activity.xml" value="0.2798913043478261" />
+        <entry key="..\:/ASGD/app/src/main/res/layout/map_fragment.xml" value="0.29375" />
         <entry key="..\:/Users/neowe/AndroidStudioProjects/SGD/app/src/main/res/layout/activity_maps.xml" value="0.2" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/drawable/ic_baseline_shopping_cart_24.xml" value="0.14635416666666667" />
         <entry key="..\:/Users/neowe/SGD/app/src/main/res/drawable/ic_favorite_24.xml" value="0.14791666666666667" />
