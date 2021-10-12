@@ -95,7 +95,7 @@ public class SGDController {
                                     curObject.getString("DESCRIPTION"),
                                     curObject.getString("ADDRESSPOSTALCODE"),
                                     curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName);
+                            newAmen.setIconName("ic_" + themeName + "_50");
                             amenList.add(newAmen);
                             break;
                         case"eldercare":
@@ -104,7 +104,7 @@ public class SGDController {
                                     "NULL",
                                     curObject.getString("ADDRESSPOSTALCODE"),
                                     curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName);
+                            newAmen.setIconName("ic_" + themeName + "_50");
                             amenList.add(newAmen);
                             break;
                         case"ssc_sports_facilities":
@@ -113,7 +113,7 @@ public class SGDController {
                                     curObject.getString("DESCRIPTION"),
                                     curObject.getString("POSTAL_CODE"),
                                     curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName);
+                            newAmen.setIconName("ic_" + themeName + "_50");
                             amenList.add(newAmen);
                             break;
                         case"dsa":
@@ -122,7 +122,7 @@ public class SGDController {
                                     curObject.getString("DESCRIPTION"),
                                     "NULL",
                                     curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName);
+                            newAmen.setIconName("ic_" + themeName + "_50");
                             amenList.add(newAmen);
                             break;
                     }
