@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     int[] imageId = {
             R.drawable.ic_hdb_branches_50, R.drawable.ic_eldercare_50, R.drawable.ic_hsgb_safra_50, R.drawable.ic_hawkercentre_50,
             R.drawable.ic_ssc_sports_facilities_50, R.drawable.ic_dsa_50, R.drawable.ic_exercisefacilities_50, R.drawable.ic_registered_pharmacy_50,
-            R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50,R.drawable.ic_carparks50
+            R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50,R.drawable.ic_carparks_50
     };
 
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
