@@ -1,5 +1,7 @@
 package com.example.sgd.UI;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.sgd.Entity.Amenities;
@@ -25,14 +28,18 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback {
+public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickListener,
+                                                        OnMapReadyCallback,
+                                                        GoogleMap.OnMapLoadedCallback {
 
     public static GoogleMap gMap;
     String debugTag = "dbug:MapFrag";
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -56,16 +63,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
-        //gMap.setOnMapClickListener(this);
         gMap.setOnMapLoadedCallback(this);
-        //gMap.setOnInfoWindowClickListener(this);
-
-       // CustomInfoWindowAdapter m = new CustomInfoWindowAdapter(getActivity().getApplicationContext());
-        //gMap.setInfoWindowAdapter(m);
-
-        //place marker
-        //LatLng sg = new LatLng(1.373600, 103.806117);
-        //gMap.addMarker(new MarkerOptions().position(sg).title("Marker in Singapore").snippet("HELLO"));
 
     }
 
@@ -84,8 +82,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         for(MarkerOptions m : markerList){
             gMap.addMarker(m);
         }
+        gMap.setOnMarkerClickListener(this);
     }
-
 
     public void onMapLoaded(){
         LatLngBounds sgbound = new LatLngBounds(new LatLng(1.14916, 103.598487),new LatLng(1.47317, 104.092349));
@@ -122,5 +120,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+
+        Log.v(debugTag,marker.getTitle());
+
+
+        return false;
     }
 }

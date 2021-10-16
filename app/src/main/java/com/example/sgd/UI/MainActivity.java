@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     };
 
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
