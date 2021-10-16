@@ -21,6 +21,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.util.ArrayList;
 import com.example.sgd.Entity.CustomGrid;
+import com.example.sgd.Entity.CustomList;
 
 public class MainActivity extends AppCompatActivity implements AdapterHorizontal.IUserRecycler, AdapterGrid.IUserRecycler, favAdapterGrid.IUserRecycler{
     MapFragment mFragment;
@@ -28,11 +29,13 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     SGDController controller;
     String debugTag = "dbug:MaiACt";
 
-    private RecyclerView horizontalRecycler, gridRecycler, fav_gridRecycler;
-    private RecyclerView.Adapter adapter, gridAdapter, fav_gridAdapter;
+
+    View horizontalBar, bottomSheet, favbottomSheet, listviewbar;
+    private RecyclerView horizontalRecycler, gridRecycler, fav_gridRecycler, list_recycler;
+    private RecyclerView.Adapter adapter, gridAdapter, fav_gridAdapter, listAdapter;
     Button favbuttonCollapse, buttonCollapse;
     ToggleButton grid_toggleFavbtn,fav_toggleFavbtn, fav_grid_bar_SingleToggle;
-    private BottomSheetBehavior mBottomSheetBehavior, favmBottomSheetBehavior;
+    private BottomSheetBehavior mBottomSheetBehavior, favmBottomSheetBehavior, listviewSheetBehavior;
     Boolean checktoggle, check;
 
     String[] web = {
@@ -43,6 +46,14 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             R.drawable.ic_ssc_sports_facilities_50, R.drawable.ic_dsa_50, R.drawable.ic_exercisefacilities_50, R.drawable.ic_registered_pharmacy_50,
             R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50,R.drawable.ic_carparks_50
     };
+
+    String[] title = {
+            "Carpark1", "Carpark2", "Carpark3", "Carpark4"
+    } ;
+
+    String[] slots = {
+            "150/300", "160/300", "200/300", "300/300"
+    } ;
 
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
 
@@ -96,9 +107,32 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             }
         }
 
-        View bottomSheet = findViewById(R.id.grid_bar);
+        //listview for map icons
+        list_recycler = findViewById(R.id.listview);
+        list_recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        ArrayList<CustomList> listview = new ArrayList<>();
+        listAdapter = new AdapterListView(getApplicationContext(),listview,this);
+        list_recycler.setAdapter(listAdapter);
+
+        for(int i=0; i<title.length; i++)
+        {
+            listview.add(new CustomList(title[i], slots[i]));
+        }
+
+
+
+
+
+
+
+
+
+        listviewbar = findViewById(R.id.listview_bar);
+        horizontalBar = findViewById(R.id.horizontalbar);
+        bottomSheet = findViewById(R.id.grid_bar);
+        favbottomSheet = findViewById(R.id.fav_grid_bar);
+
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        View favbottomSheet = findViewById(R.id.fav_grid_bar);
         favmBottomSheetBehavior = BottomSheetBehavior.from(favbottomSheet);
 
         mBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -230,6 +264,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         });
+
+
     }
 
     public class AsyncJobz extends AsyncTask<String, Integer, Void> {
@@ -332,6 +368,23 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             case "Designated Smoking Areas": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("dsa");
                 break;
+        }
+    }
+
+    public void callc(){
+        listviewbar.setVisibility(View.VISIBLE);
+        horizontalBar.setVisibility(View.GONE);
+        bottomSheet.setVisibility(View.GONE);
+        favbottomSheet.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(listviewbar.getVisibility() == View.VISIBLE){
+            listviewbar.setVisibility(View.GONE);
+            horizontalBar.setVisibility(View.VISIBLE);
+            bottomSheet.setVisibility(View.VISIBLE);
+            favbottomSheet.setVisibility(View.VISIBLE);
         }
     }
 }

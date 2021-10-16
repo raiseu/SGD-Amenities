@@ -23,12 +23,12 @@
             android:src="@drawable/ic_supermarket_35"></ImageButton>
 
         <TextView
-            android:autoSizeTextType="uniform"
             android:id="@+id/grid_title"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="55dp"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="55dp"
+            android:autoSizeTextType="uniform"
             android:gravity="center"
             android:text="Supermarkets"
             android:textColor="@color/black"

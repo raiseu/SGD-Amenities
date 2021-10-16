@@ -1,20 +1,11 @@
 package com.example.sgd.UI;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.sgd.Entity.Amenities;
@@ -27,7 +18,6 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -37,8 +27,10 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                                         OnMapReadyCallback,
                                                         GoogleMap.OnMapLoadedCallback {
 
+
     public static GoogleMap gMap;
     String debugTag = "dbug:MapFrag";
+    MainActivity mainActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,6 +40,11 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        //listviewSheet = getView().findViewById(R.id.listview_bar);
+
+        //listviewSheet = (View) rootView.findViewById(R.id.listview_bar);
+        mainActivity = (MainActivity) requireActivity();
 
         return rootView;
     }
@@ -123,11 +120,13 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     }
 
     @Override
-    public boolean onMarkerClick(Marker marker) {
+    public boolean onMarkerClick(Marker marker ) {
 
         Log.v(debugTag,marker.getTitle());
 
+        mainActivity.callc();
 
         return false;
     }
+
 }
