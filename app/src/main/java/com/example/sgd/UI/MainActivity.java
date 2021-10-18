@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ToggleButton;
 
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -20,40 +21,40 @@ import com.example.sgd.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.util.ArrayList;
+
 import com.example.sgd.Entity.CustomGrid;
 import com.example.sgd.Entity.CustomList;
 
-public class MainActivity extends AppCompatActivity implements AdapterHorizontal.IUserRecycler, AdapterGrid.IUserRecycler, favAdapterGrid.IUserRecycler{
+public class MainActivity extends AppCompatActivity implements AdapterHorizontal.IUserRecycler, AdapterGrid.IUserRecycler, favAdapterGrid.IUserRecycler {
     MapFragment mFragment;
     FragmentManager fragmentManager;
     SGDController controller;
     String debugTag = "dbug:MaiACt";
 
-
     View horizontalBar, bottomSheet, favbottomSheet, listviewbar;
     private RecyclerView horizontalRecycler, gridRecycler, fav_gridRecycler, list_recycler;
     private RecyclerView.Adapter adapter, gridAdapter, fav_gridAdapter, listAdapter;
     Button favbuttonCollapse, buttonCollapse;
-    ToggleButton grid_toggleFavbtn,fav_toggleFavbtn, fav_grid_bar_SingleToggle;
+    ToggleButton grid_toggleFavbtn, fav_toggleFavbtn, fav_grid_bar_SingleToggle;
     private BottomSheetBehavior mBottomSheetBehavior, favmBottomSheetBehavior, listviewSheetBehavior;
     Boolean checktoggle, check;
 
     String[] web = {
-            "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries","Car Parks"
-    } ;
+            "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries", "Car Parks"
+    };
     int[] imageId = {
             R.drawable.ic_hdb_branches_50, R.drawable.ic_eldercare_50, R.drawable.ic_hsgb_safra_50, R.drawable.ic_hawkercentre_50,
             R.drawable.ic_ssc_sports_facilities_50, R.drawable.ic_dsa_50, R.drawable.ic_exercisefacilities_50, R.drawable.ic_registered_pharmacy_50,
-            R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50,R.drawable.ic_carparks_50
+            R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50, R.drawable.ic_carparks_50
     };
 
     String[] title = {
             "Carpark1", "Carpark2", "Carpark3", "Carpark4"
-    } ;
+    };
 
     String[] slots = {
             "150/300", "160/300", "200/300", "300/300"
-    } ;
+    };
 
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
 
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         fragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView, mFragment).commit();
         controller = new SGDController();
+
 
         //horizontal bar
         horizontalRecycler = findViewById(R.id.my_recycler);
@@ -118,14 +120,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         {
             listview.add(new CustomList(title[i], slots[i]));
         }
-
-
-
-
-
-
-
-
 
         listviewbar = findViewById(R.id.listview_bar);
         horizontalBar = findViewById(R.id.horizontalbar);
@@ -387,4 +381,5 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             favbottomSheet.setVisibility(View.VISIBLE);
         }
     }
+
 }
