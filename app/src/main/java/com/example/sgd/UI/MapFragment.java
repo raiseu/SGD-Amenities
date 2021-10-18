@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -29,7 +30,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.SupportStreetViewPanoramaFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -42,8 +42,7 @@ import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 
-public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickListener{
-        //, OnMapReadyCallback{
+public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback{
         //, GoogleMap.OnMapLoadedCallback {
 
 
@@ -66,7 +65,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -75,59 +73,96 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
 
-        new FragmentPermissionHelper().startPermissionRequest(frs, isGranted -> {
-            if (isGranted) {
-                // Permission is granted. Continue the action or workflow in your
-                // app.
-                client = LocationServices.getFusedLocationProviderClient(container.getContext());
-                @SuppressLint("MissingPermission")
-                Task<Location> task = client.getLastLocation();
-                task.addOnSuccessListener(location -> {
-                    if(location != null){
-                        mapFragment.getMapAsync(googleMap -> zoomToCurrentLoc(googleMap, location));
-                    }
-                    else{
-                        locationRequest = LocationRequest.create();
-                        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                        locationRequest.setInterval(20 * 1000);
-                        locationCallback = new LocationCallback() {
-                            @Override
-                            public void onLocationResult(LocationResult locationResult) {
-                                if (locationResult == null) {
-                                    Log.v(debugTag, "location null");
-                                    return;
-                                }
-                                for (Location location : locationResult.getLocations()) {
-                                    if (location != null) {
-                                        mapFragment.getMapAsync(new OnMapReadyCallback() {
-                                            @Override
-                                            public void onMapReady(GoogleMap googleMap) {
-                                                zoomToCurrentLoc(googleMap, location);
-                                            }
-                                        });
+        LocationManager lm = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        //boolean network_enabled = false;
+
+        try{
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        }catch (Exception e){
+            Log.v(debugTag, e.toString());
+        }
+
+        /*
+        try{
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        }catch(Exception e){
+            Log.v(debugTag, e.toString());
+        }
+         */
+
+
+        //boolean finalNetwork_enabled = network_enabled;
+        boolean finalGps_enabled = gps_enabled;
+        new FragmentPermissionHelper().startPermissionRequest(frs, new FragmentPermissionInterface() {
+            @Override
+            public void onGranted(boolean isGranted) {
+                //Log.v(debugTag, String.valueOf(finalGps_enabled));
+                //Log.v(debugTag, String.valueOf(finalNetwork_enabled));
+                if (isGranted && finalGps_enabled ) {
+                    Log.v(debugTag, "test");
+                    // Permission is granted. Continue the action or workflow in your
+                    // app.
+                    client = LocationServices.getFusedLocationProviderClient(container.getContext());
+                    @SuppressLint("MissingPermission")
+                    Task<Location> task = client.getLastLocation();
+                    task.addOnSuccessListener(new OnSuccessListener<Location>() {
+                        @SuppressLint("MissingPermission")
+                        @Override
+                        public void onSuccess(Location location) {
+                            if(location != null){
+                                mapFragment.getMapAsync(new OnMapReadyCallback() {
+                                    @Override
+                                    public void onMapReady(GoogleMap googleMap) {
+                                        zoomToCurrentLoc(googleMap, location);
+                                        //call entity method
                                     }
-                                }
+                                });
                             }
-                        };
-                        client.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-                    }
-                });
-                task.addOnFailureListener(e -> {
-                    Log.v(debugTag, "onFailure");
-                    LatLngBounds sgbound = new LatLngBounds(new LatLng(1.14916, 103.598487),new LatLng(1.47317, 104.092349));
-                    gMap.setLatLngBoundsForCameraTarget(sgbound); //restrict map bound
-                    gMap.setMinZoomPreference(11);//restrict zoom out lvl
-                    gMap.moveCamera(CameraUpdateFactory.newLatLngBounds(sgbound, 13)); //move camera
-                });
+                            else{
+                                locationRequest = LocationRequest.create();
+                                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                                locationRequest.setInterval(20 * 1000);
+                                locationCallback = new LocationCallback() {
+                                    @Override
+                                    public void onLocationResult(LocationResult locationResult) {
+                                        if (locationResult == null) {
+                                            Log.v(debugTag, "location null");
+                                            return;
+                                        }
+                                        for (Location location : locationResult.getLocations()) {
+                                            if (location != null) {
+                                                mapFragment.getMapAsync(new OnMapReadyCallback() {
+                                                    @Override
+                                                    public void onMapReady(GoogleMap googleMap) {
+                                                        zoomToCurrentLoc(googleMap, location);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                };
+                                client.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+                            }
+                        }
+                    });
+                    task.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.v(debugTag, "onFailure");
+                            mapFragment.getMapAsync(MapFragment.this::onMapReady);
+                        }
+                    });
 
-            } else {
-                // Explain to the user that the feature is unavailable because the
-                // features requires a permission that the user has denied. At the
-                // same time, respect the user's decision. Don't link to system
-                // settings in an effort to convince the user to change their
-                // decision.
-                Log.v(debugTag, "permission denied");
-
+                } else {
+                    // Explain to the user that the feature is unavailable because the
+                    // features requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
+                    Log.v(debugTag, "permission denied");
+                    mapFragment.getMapAsync(MapFragment.this::onMapReady);
+                }
             }
         }, Manifest.permission.ACCESS_FINE_LOCATION);
 
@@ -136,6 +171,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         return rootView;
     }
 
+    //current location callback
     @SuppressLint("MissingPermission")
     private void zoomToCurrentLoc(GoogleMap googleMap, Location location){
         gMap = googleMap;
@@ -148,26 +184,16 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
     }
 
-/*
+    //default location callback
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gMap = googleMap;
-        //gMap.setOnMapLoadedCallback(this);
         LatLngBounds sgbound = new LatLngBounds(new LatLng(1.14916, 103.598487),new LatLng(1.47317, 104.092349));
         gMap.setLatLngBoundsForCameraTarget(sgbound); //restrict map bound
         gMap.setMinZoomPreference(11);//restrict zoom out lvl
-        gMap.moveCamera(CameraUpdateFactory.newLatLngBounds(sgbound, 13)); //move camera
+        gMap.moveCamera(CameraUpdateFactory.newLatLngBounds(sgbound, 14)); //move camera
     }
-
- */
-    /*
-    public void onMapLoaded(){
-
-
-        //gMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.style_json)); //Styling to remove all existing icon on googlemap
-    }
-
-     */
 
     public void plotMarkers(ArrayList<Amenities> amenList){
         ArrayList<MarkerOptions> markerList = new ArrayList<MarkerOptions>();

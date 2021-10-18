@@ -1,5 +1,6 @@
 package com.example.sgd.Controller;
 
+import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -238,6 +239,14 @@ public class SGDController {
             }
         });*/
 
+    }
+
+    public ArrayList nearestAmen(Location currentLoc, ArrayList<Amenities> amenList){
+        ArrayList<Amenities> sortedList = new ArrayList<Amenities>();
+        int range = 5; //5km
+
+
+        return sortedList;
     }
 
 }
