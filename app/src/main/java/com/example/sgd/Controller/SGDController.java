@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.sgd.Entity.Amenities;
+import com.example.sgd.Entity.Carpark;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -34,6 +36,7 @@ public class SGDController {
     JSONObject jsonObject;
     JSONArray jsonArray;
     ArrayList<Amenities> amenList = new ArrayList<Amenities>();
+    ArrayList<Carpark> carparkList = new ArrayList<Carpark>();
     OkHttpClient httpClient = new OkHttpClient();
     String debugTag = "dbug:Controller";
 
@@ -241,6 +244,54 @@ public class SGDController {
 
     }
 
+    public void RetrieveAllCarparks()
+    {
+        carparkList.clear();
+        String url = "http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip=";
+        String dataMallKey = "amWBvG8eT4CtFzLY2QvHYw==";
+        for (int skip = 0; skip<=2000; skip+=500) {
+            Request request = new Request.Builder()
+                    .url(url + skip)
+                    .addHeader("AccountKey", dataMallKey)
+                    .addHeader("accept", "application/json")
+                    .build();
+            OkHttpClient httpClient = new OkHttpClient();
+            try (Response response = httpClient.newCall(request).execute()) {
+                if (response.isSuccessful()) {
+                    //JSONParser parser = new JSONParser();
+                    jsonObject = new JSONObject(response.body().string());
+                    //JSONObject jsonObject = (JSONObject) parser.parse(response.body().string());
+                    JSONArray jsonArray = (JSONArray) jsonObject.get("value");
+
+                    //System.out.println("Total number of results: " + jsonArray.length());
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject obj_1 = (JSONObject) jsonArray.get(i);
+                        String carParkID = (String) obj_1.get("CarParkID");
+                        String area = (String) obj_1.get("Area");
+                        String development = (String) obj_1.get("Development");
+                        String location = (String) obj_1.get("Location");
+                        long availableLots = (long) obj_1.get("AvailableLots");
+                        String lotType = (String) obj_1.get("LotType");
+                        String agency = (String) obj_1.get("Agency");
+
+                        //Split location: String into latitude: double and longitude: double
+                        String[] coordList = location.split(" ");
+                        double latitude = Double.parseDouble(coordList[0]);
+                        double longitude = Double.parseDouble(coordList[1]);
+
+                        Carpark cp = new Carpark(carParkID, area, development, location, latitude, longitude, availableLots, lotType, agency);
+                        carparkList.add(cp);
+                    }
+                }
+
+                //System.out.println("Size of carparkList: " + carparkList.size());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public ArrayList nearestAmen(Location currentLoc, ArrayList<Amenities> amenList){
         ArrayList<Amenities> sortedList = new ArrayList<Amenities>();
         int range = 5; //5km
@@ -249,4 +300,18 @@ public class SGDController {
         return sortedList;
     }
 
+    public void nearestCarpark(Location currentLoc, ArrayList<Carpark> carparkList)
+    {
+        int range = 5; //5km
+        for (int i = 0; i < carparkList.size(); i++)
+        {
+            Carpark cp = carparkList.get(i);
+            Location cpLoc = new Location("");
+            cpLoc.setLatitude(cp.getLatitude());
+            cpLoc.setLongitude(cp.getLongitude());
+            float distance = currentLoc.distanceTo(cpLoc);
+            cp.setDistance(distance);
+        }
+        Collections.sort(carparkList);
+    }
 }
