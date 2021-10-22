@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.sgd.Controller.SGDController;
 import com.example.sgd.Entity.Amenities;
 import com.example.sgd.Entity.Carpark;
 import com.example.sgd.R;
@@ -246,6 +247,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     @Override
     public boolean onMarkerClick(Marker marker ) {
         Log.v(debugTag,marker.getTitle());
+        Log.v(debugTag,"The LAT LONG OF THIS MARKER IS:"+String.valueOf(marker.getPosition()));
+
         mainActivity.callc();
         return false;
     }

@@ -63,6 +63,10 @@ public class Carpark implements Comparable<Carpark>{
         this.distance = distance;
     }
 
+    public void setIconName(String iconName) {
+        this.iconName = iconName;
+    }
+
     public String getCarParkID()
     {
         return carParkID;

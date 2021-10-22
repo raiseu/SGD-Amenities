@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     Boolean checktoggle, check;
 
     //To check which API to use
-    private boolean checkAPI;
+    private boolean checkAPI = false;
 
     String[] web = {
             "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries", "Car Parks"
@@ -283,12 +283,14 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             super.onPostExecute(aVoid);
             Log.v(debugTag + "amen size", String.valueOf(controller.getAmenList().size()));
             //plot markers
-            if(checkAPI = false){
 
+            //
+            if(checkAPI == false){
                 mFragment.plotMarkers(controller.getAmenList());
             }
             else{
                 mFragment.plotMarkers2(controller.getCarparkList());
+                //
             }
 
         }
@@ -334,6 +336,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     @Override
     public void CallLocations(int position, CustomGrid helper) {
         AsyncJobz as = new AsyncJobz();
+        checkAPI = false;
         switch(helper.getTitle()){
             case "Supermarkets": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("supermarkets");
@@ -373,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Car Parks": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("carpark");
+                checkAPI= true;
                 break;
         }
     }

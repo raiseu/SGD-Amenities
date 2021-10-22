@@ -256,6 +256,7 @@ public class SGDController {
 
     }
 
+
     public void RetrieveAllCarparks()
     {
         carparkList.clear();
@@ -287,6 +288,7 @@ public class SGDController {
                         String lotType = (String) obj_1.get("LotType");
                         String agency = (String) obj_1.get("Agency");
 
+
                         //Split location: String into latitude: double and longitude: double
                         String[] coordList = location.split(" ");
                         double latitude = Double.parseDouble(coordList[0]);
@@ -303,6 +305,7 @@ public class SGDController {
                         Log.v(debugTag, agency);*/
 
                         Carpark cp = new Carpark(carParkID, area, development, location, latitude, longitude, availableLots, lotType, agency);
+                        cp.setIconName("ic_" + "carparks" + "_25");
                         carparkList.add(cp);
                     }
                 }
