@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.sgd.Entity.Amenities;
+import com.example.sgd.Entity.Carpark;
 import com.example.sgd.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -208,6 +209,25 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         }
         Log.v(debugTag + "mark size", String.valueOf(markerList.size()));
         for(MarkerOptions m : markerList){
+            gMap.addMarker(m);
+        }
+        gMap.setOnMarkerClickListener(this);
+    }
+
+    //For Carpark Object
+    public void plotMarkers2(ArrayList<Carpark> carparkList){
+        ArrayList<MarkerOptions> markerList2 = new ArrayList<MarkerOptions>();
+        for(Carpark cp : carparkList){
+            //Log.v(debugTag, a.getIconName());
+            markerList2.add(new MarkerOptions()
+                    .position(cp.retrieveLatLng())
+                    .title(cp.getCarParkID())
+                    .icon(getMarkerIcon(cp.getIconName())));
+
+        }
+
+        Log.v(debugTag + "mark size", String.valueOf(markerList2.size()));
+        for(MarkerOptions m : markerList2){
             gMap.addMarker(m);
         }
         gMap.setOnMarkerClickListener(this);

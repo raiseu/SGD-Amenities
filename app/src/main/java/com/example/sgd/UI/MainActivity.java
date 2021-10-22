@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     private BottomSheetBehavior mBottomSheetBehavior, favmBottomSheetBehavior, listviewSheetBehavior;
     Boolean checktoggle, check;
 
+    //To check which API to use
+    private boolean checkAPI;
+
     String[] web = {
             "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries", "Car Parks"
     };
@@ -280,7 +283,13 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             super.onPostExecute(aVoid);
             Log.v(debugTag + "amen size", String.valueOf(controller.getAmenList().size()));
             //plot markers
-            mFragment.plotMarkers(controller.getAmenList());
+            if(checkAPI = false){
+
+                mFragment.plotMarkers(controller.getAmenList());
+            }
+            else{
+                mFragment.plotMarkers2(controller.getCarparkList());
+            }
 
         }
     }
@@ -361,6 +370,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Designated Smoking Areas": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("dsa");
+                break;
+            case "Car Parks": Log.d("call","custom grid call location " + position + helper.getTitle());
+                as.execute("carpark");
                 break;
         }
     }

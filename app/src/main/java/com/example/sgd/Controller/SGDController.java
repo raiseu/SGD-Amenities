@@ -56,89 +56,101 @@ public class SGDController {
         return amenList;
     }
 
+    public ArrayList<Carpark> getCarparkList(){
+        return carparkList;
+    }
+
     //OneMap Retrieve Theme
     public void RetrieveTheme(String themeName) {
         amenList = new ArrayList<Amenities>();
+        Log.v(debugTag, themeName);
 
-        String url = "https://developers.onemap.sg/privateapi/themesvc/retrieveTheme?queryName=" + themeName + "&token=" + oneMapToken;
-        request = new Request.Builder()
-                .url(url)
-                .build();
-        httpClient = new OkHttpClient();
-        //Log.v(debugTag ,url);
-        //synchronus call
-        try (Response response = httpClient.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                jsonObject = new JSONObject(response.body().string());
-                jsonArray = jsonObject.getJSONArray("SrchResults");
-                JSONObject curObject;
-                for (int i = 1; i < jsonArray.length(); i++) {
-                    //Log.v(debugTag ,String.valueOf(i));
-                    curObject = (JSONObject) jsonArray.get(i);
-                    Amenities newAmen;
-                    switch (themeName){
-                        case"supermarkets":
-                            newAmen = new Amenities(
-                                    curObject.getString("NAME"),
-                                    curObject.getString("DESCRIPTION"),
-                                    curObject.getString("POSTCODE"),
-                                    curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName + "_25");
-                            amenList.add(newAmen);
-                            break;
-                        case"hdb_branches":
-                        case"hawkercentre":
-                        case"hsgb_safra":
-                        case"communityclubs":
-                        case"relaxsg":
-                        case"libraries":
-                        case"registered_pharmacy":
-                            newAmen = new Amenities(
-                                    curObject.getString("NAME"),
-                                    curObject.getString("DESCRIPTION"),
-                                    curObject.getString("ADDRESSPOSTALCODE"),
-                                    curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName + "_25");
-                            amenList.add(newAmen);
-                            break;
-                        case"eldercare":
-                        case"exercisefacilities":
-                            newAmen = new Amenities(
-                                    curObject.getString("NAME"),
-                                    "NULL",
-                                    curObject.getString("ADDRESSPOSTALCODE"),
-                                    curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName + "_25");
-                            amenList.add(newAmen);
-                            break;
-                        case"ssc_sports_facilities":
-                            newAmen = new Amenities(
-                                    curObject.getString("NAME"),
-                                    curObject.getString("DESCRIPTION"),
-                                    curObject.getString("POSTAL_CODE"),
-                                    curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName + "_25");
-                            amenList.add(newAmen);
-                            break;
-                        case"dsa":
-                            newAmen = new Amenities(
-                                    curObject.getString("NAME"),
-                                    curObject.getString("DESCRIPTION"),
-                                    "NULL",
-                                    curObject.getString("LatLng"));
-                            newAmen.setIconName("ic_" + themeName + "_25");
-                            amenList.add(newAmen);
-                            break;
+        if (themeName.equals("carpark"))
+        {
+            RetrieveAllCarparks();
+            Log.v(debugTag, "Size of carparkList is: " + String.valueOf(carparkList.size()));
+        }
+        else
+        {
+            String url = "https://developers.onemap.sg/privateapi/themesvc/retrieveTheme?queryName=" + themeName + "&token=" + oneMapToken;
+            request = new Request.Builder()
+                    .url(url)
+                    .build();
+            httpClient = new OkHttpClient();
+            //Log.v(debugTag ,url);
+            //synchronus call
+            try (Response response = httpClient.newCall(request).execute()) {
+                if (response.isSuccessful()) {
+                    jsonObject = new JSONObject(response.body().string());
+                    jsonArray = jsonObject.getJSONArray("SrchResults");
+                    JSONObject curObject;
+                    for (int i = 1; i < jsonArray.length(); i++) {
+                        //Log.v(debugTag ,String.valueOf(i));
+                        curObject = (JSONObject) jsonArray.get(i);
+                        Amenities newAmen;
+                        switch (themeName){
+                            case"supermarkets":
+                                newAmen = new Amenities(
+                                        curObject.getString("NAME"),
+                                        curObject.getString("DESCRIPTION"),
+                                        curObject.getString("POSTCODE"),
+                                        curObject.getString("LatLng"));
+                                newAmen.setIconName("ic_" + themeName + "_25");
+                                amenList.add(newAmen);
+                                break;
+                            case"hdb_branches":
+                            case"hawkercentre":
+                            case"hsgb_safra":
+                            case"communityclubs":
+                            case"relaxsg":
+                            case"libraries":
+                            case"registered_pharmacy":
+                                newAmen = new Amenities(
+                                        curObject.getString("NAME"),
+                                        curObject.getString("DESCRIPTION"),
+                                        curObject.getString("ADDRESSPOSTALCODE"),
+                                        curObject.getString("LatLng"));
+                                newAmen.setIconName("ic_" + themeName + "_25");
+                                amenList.add(newAmen);
+                                break;
+                            case"eldercare":
+                            case"exercisefacilities":
+                                newAmen = new Amenities(
+                                        curObject.getString("NAME"),
+                                        "NULL",
+                                        curObject.getString("ADDRESSPOSTALCODE"),
+                                        curObject.getString("LatLng"));
+                                newAmen.setIconName("ic_" + themeName + "_25");
+                                amenList.add(newAmen);
+                                break;
+                            case"ssc_sports_facilities":
+                                newAmen = new Amenities(
+                                        curObject.getString("NAME"),
+                                        curObject.getString("DESCRIPTION"),
+                                        curObject.getString("POSTAL_CODE"),
+                                        curObject.getString("LatLng"));
+                                newAmen.setIconName("ic_" + themeName + "_25");
+                                amenList.add(newAmen);
+                                break;
+                            case"dsa":
+                                newAmen = new Amenities(
+                                        curObject.getString("NAME"),
+                                        curObject.getString("DESCRIPTION"),
+                                        "NULL",
+                                        curObject.getString("LatLng"));
+                                newAmen.setIconName("ic_" + themeName + "_25");
+                                amenList.add(newAmen);
+                                break;
+                        }
                     }
                 }
+                else{
+                    Log.v(debugTag ,String.valueOf(response.code()));
+                }
+            } catch(Exception e){
+                e.printStackTrace();
             }
-            else{
-                Log.v(debugTag ,String.valueOf(response.code()));
-            }
-        } catch(Exception e){
-            e.printStackTrace();
         }
-
 /*
         //asynchronus call
         httpClient.newCall(request).enqueue(new Callback() {
@@ -271,7 +283,7 @@ public class SGDController {
                         String area = (String) obj_1.get("Area");
                         String development = (String) obj_1.get("Development");
                         String location = (String) obj_1.get("Location");
-                        long availableLots = (long) obj_1.get("AvailableLots");
+                        int availableLots = (int) obj_1.get("AvailableLots");
                         String lotType = (String) obj_1.get("LotType");
                         String agency = (String) obj_1.get("Agency");
 
@@ -279,6 +291,16 @@ public class SGDController {
                         String[] coordList = location.split(" ");
                         double latitude = Double.parseDouble(coordList[0]);
                         double longitude = Double.parseDouble(coordList[1]);
+
+                        /*Log.v(debugTag, carParkID);
+                        Log.v(debugTag, area);
+                        Log.v(debugTag, development);
+                        Log.v(debugTag, location);
+                        Log.v(debugTag, String.valueOf(latitude));
+                        Log.v(debugTag, String.valueOf(longitude));
+                        Log.v(debugTag, String.valueOf(availableLots));
+                        Log.v(debugTag, lotType);
+                        Log.v(debugTag, agency);*/
 
                         Carpark cp = new Carpark(carParkID, area, development, location, latitude, longitude, availableLots, lotType, agency);
                         carparkList.add(cp);

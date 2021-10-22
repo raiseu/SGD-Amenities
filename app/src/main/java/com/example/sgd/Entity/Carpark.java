@@ -1,5 +1,7 @@
 package com.example.sgd.Entity;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class Carpark implements Comparable<Carpark>{
     private String carParkID;
     private String area;
@@ -8,11 +10,13 @@ public class Carpark implements Comparable<Carpark>{
     private double latitude;
     private double longitude;
     private float distance;
-    private long availableLots;
+    private int availableLots;
     private String lotType;
     private String agency;
+    private String iconName;
 
-    public Carpark(String carParkID, String area, String development, String location, double latitude, double longitude, long availableLots, String lotType, String agency)
+
+    public Carpark(String carParkID, String area, String development, String location, double latitude, double longitude, int availableLots, String lotType, String agency)
     {
         this.carParkID = carParkID;
         this.area = area;
@@ -48,6 +52,12 @@ public class Carpark implements Comparable<Carpark>{
         System.out.println("----------------------");
     }
 
+    public LatLng retrieveLatLng(){
+
+        LatLng pos = new LatLng(this.latitude, this.longitude);
+        return pos;
+    }
+
     public void setDistance(float distance)
     {
         this.distance = distance;
@@ -81,7 +91,7 @@ public class Carpark implements Comparable<Carpark>{
     {
         return distance;
     }
-    public long getAvailableLots()
+    public int getAvailableLots()
     {
         return availableLots;
     }
@@ -93,4 +103,5 @@ public class Carpark implements Comparable<Carpark>{
     {
         return agency;
     }
+    public String getIconName() { return iconName; }
 }
