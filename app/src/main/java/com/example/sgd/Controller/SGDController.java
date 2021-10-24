@@ -318,7 +318,7 @@ public class SGDController {
             //retrieving HDB Carparks
             String url2 = "https://developers.onemap.sg/privateapi/themesvc/retrieveTheme?queryName=hdb_car_park_information&token=" + oneMapToken;
             request = new Request.Builder()
-                    .url(url)
+                    .url(url2)
                     .build();
             httpClient = new OkHttpClient();
             //Log.v(debugTag ,url);
