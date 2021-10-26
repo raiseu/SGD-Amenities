@@ -324,7 +324,52 @@ public class SGDController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            //retrieving HDB Carparks
+            String url2 = "https://developers.onemap.sg/privateapi/themesvc/retrieveTheme?queryName=hdb_car_park_information&token=" + oneMapToken;
+            request = new Request.Builder()
+                    .url(url2)
+                    .build();
+            httpClient = new OkHttpClient();
+            //Log.v(debugTag ,url);
+            //synchronus call
+            try (Response response = httpClient.newCall(request).execute()) {
+                if (response.isSuccessful()) {
+                    jsonObject = new JSONObject(response.body().string());
+                    jsonArray = jsonObject.getJSONArray("SrchResults");
+                    JSONObject curObject;
+                    for (int i = 1; i < jsonArray.length(); i++) {
+                        //Log.v(debugTag ,String.valueOf(i));
+                        curObject = (JSONObject) jsonArray.get(i);
+                        Carpark newHDBCarpark;
+
+                        String[] coordList = curObject.getString("LatLng").split(" ");
+                        double latitude = Double.parseDouble(coordList[0]);
+                        double longitude = Double.parseDouble(coordList[1]);
+
+                        newHDBCarpark = new Carpark(
+                                curObject.getString("NAME"),
+                                "",
+                                curObject.getString("DESCRIPTION"),
+                                curObject.getString("LatLng"),
+                                latitude,
+                                longitude,
+                                0,
+                                "",
+                                "HDB");
+                        newHDBCarpark.setIconName("ic_carparks_25");
+                        carparkList.add(newHDBCarpark);
+                    }
+                }
+                else{
+                    Log.v(debugTag ,String.valueOf(response.code()));
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+            }
         }
+
+
     }
 
     public ArrayList nearestAmen(Location currentLoc, ArrayList<Amenities> amenList){
