@@ -1,6 +1,7 @@
 package com.example.sgd.UI;
 
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sgd.Controller.SGDController;
+import com.example.sgd.Entity.Carpark;
 import com.example.sgd.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     SGDController controller;
     String debugTag = "dbug:MaiACt";
 
+    ArrayList<Carpark> carparkList = new ArrayList<Carpark>();
+    ArrayList<Carpark> sortedCarparkList = new ArrayList<Carpark>();
+
     View horizontalBar, bottomSheet, favbottomSheet, listviewbar;
     private RecyclerView horizontalRecycler, gridRecycler, fav_gridRecycler, list_recycler;
     private RecyclerView.Adapter adapter, gridAdapter, fav_gridAdapter, listAdapter;
@@ -38,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     ToggleButton grid_toggleFavbtn, fav_toggleFavbtn, fav_grid_bar_SingleToggle;
     private BottomSheetBehavior mBottomSheetBehavior, favmBottomSheetBehavior, listviewSheetBehavior;
     Boolean checktoggle, check;
+
+    ArrayList<CustomList> listview = new ArrayList<>();
 
     //To check which API to use
     private boolean checkAPI = false;
@@ -52,11 +59,13 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     };
 
     String[] title = {
-            "Carpark1", "Carpark2", "Carpark3", "Carpark4"
+            "Carpark1", "Carpark2", "Carpark3", "Carpark4",
     };
 
+
+
     String[] slots = {
-            "150/300", "160/300", "200/300", "300/300"
+            "150/300", "160/300", "200/300", "300/300", "150/300", "160/300", "200/300", "300/300", "200/300", "300/300"
     };
 
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
@@ -112,17 +121,20 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             }
         }
 
+
         //listview for map icons
         list_recycler = findViewById(R.id.listview);
         list_recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        ArrayList<CustomList> listview = new ArrayList<>();
+        //ArrayList<CustomList> listview = new ArrayList<>();
         listAdapter = new AdapterListView(getApplicationContext(),listview,this);
         list_recycler.setAdapter(listAdapter);
 
-        for(int i=0; i<title.length; i++)
+        /*
+        Log.d("my size",String.valueOf(sortedCarparkList.size()));
+        for(int i=0; i<sortedCarparkList.size(); i++)
         {
-            listview.add(new CustomList(title[i], slots[i]));
-        }
+            listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment(), String.valueOf(sortedCarparkList.get(i).getAvailableLots())));
+        }*/
 
         listviewbar = findViewById(R.id.listview_bar);
         horizontalBar = findViewById(R.id.horizontalbar);
@@ -265,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
     }
 
+
     public class AsyncJobz extends AsyncTask<String, Integer, Void> {
         @Override
         protected Void doInBackground(String... strings) {
@@ -289,7 +302,31 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 mFragment.plotMarkers(controller.getAmenList());
             }
             else{
-                mFragment.plotMarkers2(controller.getCarparkList());
+                carparkList = controller.getCarparkList();
+                mFragment.plotMarkers2(carparkList);
+
+                Location cLocation = null;
+                cLocation = mFragment.returnLocation();
+                //cLocation = new google.maps.LatLng(parseFloat(33.7238029), parseFloat(-117.267504, 17));
+                if(cLocation != null) {
+                    Log.v(debugTag,String.valueOf( cLocation.getLatitude()) + String.valueOf( cLocation.getLongitude()));
+                    sortedCarparkList = controller.nearestCarpark(cLocation, carparkList);
+                    Log.v(debugTag, "not null   Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
+
+                    for(int i=0; i<sortedCarparkList.size(); i++)
+                    {
+                        listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment(), String.valueOf(sortedCarparkList.get(i).getAvailableLots())));
+                    }
+
+                }else{
+                    Log.v(debugTag, "Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
+                    Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(carparkList.size()));
+                }
+
+                //Location currentLoc;
+                //currentLoc = controller.getCurLocation();
+                //controller.nearestCarpark(currentLoc, carparkList);
+
                 //
             }
 
@@ -376,6 +413,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Car Parks": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("carpark");
+
+
                 checkAPI= true;
                 break;
         }

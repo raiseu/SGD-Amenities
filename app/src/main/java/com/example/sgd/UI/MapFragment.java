@@ -55,6 +55,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     private FragmentActivity frs;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
+    Location currentLocation;
     //LocationManager locationManager;
 
     @Override
@@ -66,6 +67,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
 
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,6 +96,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
          */
 
 
+
+
         //boolean finalNetwork_enabled = network_enabled;
         boolean finalGps_enabled = gps_enabled;
         new FragmentPermissionHelper().startPermissionRequest(frs, new FragmentPermissionInterface() {
@@ -117,6 +121,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                     @Override
                                     public void onMapReady(GoogleMap googleMap) {
                                         zoomToCurrentLoc(googleMap, location);
+                                        currentLocation = location;
                                         //call entity method
                                     }
                                 });
@@ -138,6 +143,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                                                     @Override
                                                     public void onMapReady(GoogleMap googleMap) {
                                                         zoomToCurrentLoc(googleMap, location);
+
+                                                       // onSomeEventListener.someEvent(location);
                                                     }
                                                 });
                                             }
@@ -171,6 +178,14 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         mainActivity = (MainActivity) requireActivity();
 
         return rootView;
+    }
+
+
+    public Location returnLocation(){
+        Location curLocation;
+        curLocation = currentLocation;
+
+        return curLocation;
     }
 
     //current location callback
@@ -248,6 +263,9 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     public boolean onMarkerClick(Marker marker ) {
         Log.v(debugTag,marker.getTitle());
         Log.v(debugTag,"The LAT LONG OF THIS MARKER IS:"+String.valueOf(marker.getPosition()));
+
+
+
 
         mainActivity.callc();
         return false;

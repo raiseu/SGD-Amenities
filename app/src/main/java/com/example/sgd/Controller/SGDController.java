@@ -60,6 +60,16 @@ public class SGDController {
         return carparkList;
     }
 
+    public Location getCurLocation() {
+        return curLocation;
+    }
+
+    public void setCurLocation(Location curLocation) {
+        this.curLocation = curLocation;
+    }
+
+    Location curLocation;
+
     //OneMap Retrieve Theme
     public void RetrieveTheme(String themeName) {
         amenList = new ArrayList<Amenities>();
@@ -325,18 +335,42 @@ public class SGDController {
         return sortedList;
     }
 
-    public void nearestCarpark(Location currentLoc, ArrayList<Carpark> carparkList)
+    public ArrayList nearestCarpark(Location currentLoc, ArrayList<Carpark> carparkList)
     {
-        int range = 5; //5km
+        ArrayList<Carpark> sortedCarparkList = new ArrayList<Carpark>();
+        int range = 1100;
         for (int i = 0; i < carparkList.size(); i++)
         {
+
             Carpark cp = carparkList.get(i);
+            //cpLoc = cp.retrieveLatLng();
             Location cpLoc = new Location("");
             cpLoc.setLatitude(cp.getLatitude());
             cpLoc.setLongitude(cp.getLongitude());
             float distance = currentLoc.distanceTo(cpLoc);
             cp.setDistance(distance);
+
+            if(i<10){
+                Log.v(debugTag, cp.getLocation());//location
+                Log.v(debugTag, cp.getCarParkID());//
+                Log.v(debugTag, cp.getLotType());
+                Log.v(debugTag, cp.getIconName());
+                Log.v(debugTag, cp.getDevelopment());//development
+                Log.v(debugTag, cp.getArea());//
+                Log.v(debugTag, String.valueOf(cp.getAvailableLots()));
+                Log.v(debugTag, cp.getAgency());
+            }
+
+            //Log.v(debugTag,  "distance " + String.valueOf(cp.getDistance()));
+
+            if(cp.getDistance() < range){
+                Log.v(debugTag,  "distance " + String.valueOf(cp.getDistance()));
+                Log.v(debugTag, "agency" + cp.getAgency());
+                sortedCarparkList.add(cp);
+            }
         }
-        Collections.sort(carparkList);
+        Collections.sort(sortedCarparkList);
+
+        return sortedCarparkList;
     }
 }
