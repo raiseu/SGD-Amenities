@@ -41,7 +41,6 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
         CustomList helper = listLocations.get(position);
         holder.titleTextView.setText(helper.getTitle());
         holder.slotsTextView.setText(helper.getSlots());
-        holder.textViewFirst.setText(helper.getTextViewFirst());
 
         boolean isExpanded = listLocations.get(position).isExpanded();
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
@@ -54,7 +53,7 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
 
 
         ConstraintLayout expandableLayout;
-        TextView titleTextView, slotsTextView, textViewFirst;
+        TextView titleTextView, slotsTextView;
 
         public ViewHold(@NonNull final View itemView) {
             super(itemView);
@@ -62,7 +61,6 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
             titleTextView = itemView.findViewById(R.id.titleTextView);
             slotsTextView = itemView.findViewById(R.id.slotsTextView);
             expandableLayout = itemView.findViewById(R.id.expandableLayout);
-            textViewFirst = itemView.findViewById(R.id.textViewFirst);
 
 
             titleTextView.setOnClickListener(new View.OnClickListener() {
@@ -72,8 +70,10 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
                     CustomList list = listLocations.get(getAdapterPosition());
                     list.setExpanded(!list.isExpanded());
                     notifyItemChanged(getAdapterPosition());
+                    mListener.getDestination(getAdapterPosition());
                 }
             });
         }
     }
+
 }

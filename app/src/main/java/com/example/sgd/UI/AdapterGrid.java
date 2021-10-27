@@ -14,7 +14,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import android.widget.ToggleButton;
 
-import com.example.sgd.Entity.Amenities;
 import com.example.sgd.R;
 import com.example.sgd.Entity.CustomGrid;
 
@@ -26,8 +25,6 @@ public class AdapterGrid extends RecyclerView.Adapter<AdapterGrid.ViewHold>  {
     IUserRecycler mListener;
     ToggleButton toggleFavbtn;
     Boolean AllToggleButtonBoolean,SingleToggleItemBoolean;
-
-    int positionTest;
     //final private ListItemClickListener mOnClickListener;
 
     public AdapterGrid(Context c, ArrayList<CustomGrid> gridLocations, IUserRecycler listener) {
@@ -55,7 +52,6 @@ public class AdapterGrid extends RecyclerView.Adapter<AdapterGrid.ViewHold>  {
         holder.imagee.setImageResource(helper.getImage());
         holder.title.setText(helper.getTitle());
         holder.position = holder.getAdapterPosition();
-        positionTest = holder.position;
 
         SharedPreferences sharedPrefs = mcontext.getSharedPreferences("com.example.sgd", Context.MODE_PRIVATE);
         holder.toggleButton.setChecked(sharedPrefs.getBoolean("ToggleButton" + holder.getAdapterPosition(), false));
@@ -88,11 +84,6 @@ public class AdapterGrid extends RecyclerView.Adapter<AdapterGrid.ViewHold>  {
             }
         });
     }
-
-    public int getPosition() {
-        return positionTest;
-    }
-
     @Override
     public int getItemCount() {
         return gridLocations.size();
@@ -116,5 +107,7 @@ public class AdapterGrid extends RecyclerView.Adapter<AdapterGrid.ViewHold>  {
         void CallLocations(int position, CustomGrid helper);
         void CallInsert(int position, CustomGrid helper);
         void CallDelete(int position, CustomGrid helper);
+
+        void getDestination(int adapterPosition);
     }
 }

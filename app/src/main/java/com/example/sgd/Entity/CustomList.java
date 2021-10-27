@@ -1,23 +1,23 @@
 package com.example.sgd.Entity;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class CustomList {
     private String title;
     private String slots;
     private boolean expanded;
-    private String textViewFirst;
+    private LatLng latlng;
 
-    public CustomList(String title, String slots, String textViewFirst) {
+    public CustomList(String title, String slots, LatLng latlng) {
         this.title = title;
         this.expanded = false;
         this.slots = slots;
-        this.textViewFirst = textViewFirst;
+        this.latlng = latlng;
     }
     public String getTitle() {
         return title;
     }
-    public String getTextViewFirst() {
-        return textViewFirst;
-    }
+
     public String getSlots(){
         return slots;
     }
@@ -29,4 +29,6 @@ public class CustomList {
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
     }
+
+    public LatLng getLatlng(){ return latlng; }
 }

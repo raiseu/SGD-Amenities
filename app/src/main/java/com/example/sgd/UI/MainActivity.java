@@ -1,13 +1,15 @@
 package com.example.sgd.UI;
 
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 
@@ -19,16 +21,29 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sgd.Controller.SGDController;
-import com.example.sgd.Entity.Carpark;
 import com.example.sgd.Entity.Amenities;
+import com.example.sgd.Entity.Carpark;
+import com.example.sgd.Entity.DirectionsJSONParser;
 import com.example.sgd.R;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
-import java.text.DecimalFormat;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import com.example.sgd.Entity.CustomGrid;
 import com.example.sgd.Entity.CustomList;
+
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements AdapterHorizontal.IUserRecycler, AdapterGrid.IUserRecycler, favAdapterGrid.IUserRecycler {
     MapFragment mFragment;
@@ -38,10 +53,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
     ArrayList<Carpark> carparkList = new ArrayList<Carpark>();
     ArrayList<Carpark> sortedCarparkList = new ArrayList<Carpark>();
-
-
-    ArrayList<Amenities> amenList = new ArrayList<Amenities>();
-    ArrayList<Amenities> sortedAmenList = new ArrayList<Amenities>();
 
     View horizontalBar, bottomSheet, favbottomSheet, listviewbar;
     private RecyclerView horizontalRecycler, gridRecycler, fav_gridRecycler, list_recycler;
@@ -165,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                         break;
                     case BottomSheetBehavior.STATE_EXPANDED:
                         horizontalRecycler.setVisibility(View.GONE);
-                        favbottomSheet.setVisibility(View.GONE);
                         break;
                     case BottomSheetBehavior.STATE_HIDDEN:
                         horizontalRecycler.setVisibility(View.VISIBLE);
@@ -305,31 +315,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             Log.v(debugTag + "amen size", String.valueOf(controller.getAmenList().size()));
             //plot markers
 
-            listview.clear();
-            listAdapter.notifyDataSetChanged();
-
+            //
             if(checkAPI == false){
                 mFragment.plotMarkers(controller.getAmenList());
-                amenList = controller.getAmenList();
-                Location cLocation = null;
-                cLocation = mFragment.returnLocation();
-                if(cLocation != null) {
-                    sortedAmenList = controller.nearestAmen(cLocation, amenList);
-                    Log.v(debugTag, "not null   Size of SORTED amenlist is: " + String.valueOf(sortedAmenList.size()));
-                    String s = "";
-                    for(int i=0; i<sortedAmenList.size(); i++) {
-                        DecimalFormat twoDForm = new DecimalFormat("#.##");
-                        String km = twoDForm.format((sortedAmenList.get(i).getDistance())/1000);
-                        String textViewFirst = "Distance :" + km +" km";
-                        listview.add(new CustomList(sortedAmenList.get(i).getName()
-                                , s
-                                , textViewFirst
-                                ));
-                    }
-                }else{
-                    Log.v(debugTag, "Size of SORTED amen list is : " + String.valueOf(sortedAmenList.size()));
-                    Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(sortedAmenList.size()));
-                }
             }
             else{
                 carparkList = controller.getCarparkList();
@@ -343,29 +331,10 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                     sortedCarparkList = controller.nearestCarpark(cLocation, carparkList);
                     Log.v(debugTag, "not null   Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
 
-                    String s = "";
                     for(int i=0; i<sortedCarparkList.size(); i++)
                     {
-                        DecimalFormat twoDForm = new DecimalFormat("#.##");
-                        String km = twoDForm.format((sortedCarparkList.get(i).getDistance())/1000);
-                        String textViewFirst = "Distance :" + km +" km";
-
-                        Log.v(debugTag,"Distance " + String.valueOf(sortedCarparkList.get(i).getDistance()));
-                        listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment()
-                                , String.valueOf(sortedCarparkList.get(i).getAvailableLots())
-                                , textViewFirst ));
-
-                        String carparkid = sortedCarparkList.get(i).getCarParkID();
-                        String agency = sortedCarparkList.get(i).getAgency();
-
-                        if(agency.equals("HDB")){
-
-                        }
-                        else if (agency.equals("URA")){
-
-                        }
+                        listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment(), String.valueOf(sortedCarparkList.get(i).getAvailableLots()), sortedCarparkList.get(i).retrieveLatLng()));
                     }
-                    listAdapter.notifyDataSetChanged();
 
                 }else{
                     Log.v(debugTag, "Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
@@ -419,91 +388,52 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         fav_grid.add(new CustomGrid(imageId[position], web[position]));
         fav_gridAdapter.notifyItemInserted(position);
     }
+
     @Override
     public void CallLocations(int position, CustomGrid helper) {
-        TextView titleTextView = (TextView) findViewById(R.id.titleTopLeft);
-        TextView slotsTextView = (TextView) findViewById(R.id.titleTopRight);
         AsyncJobz as = new AsyncJobz();
         checkAPI = false;
         switch(helper.getTitle()){
             case "Supermarkets": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("supermarkets");
-                titleTextView.setText("Nearest Supermarkets");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "HDB Branches": Log.d("call","custom grid call location " + position + helper.getTitle());
-                //as.execute("hdb_branches");
-                titleTextView.setText("Nearest HDB Branches");
-                slotsTextView.setText(" ");
                 as.execute("hdb_branches");
-                callc();
                 break;
             case "Hawker Centres": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("hawkercentre");
-                titleTextView.setText("Nearest Hawker Centres");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "Gyms@SG": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("exercisefacilities");
-                titleTextView.setText("Nearest Gyms@SG");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "SAFRA Centres": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("hsgb_safra");
-                titleTextView.setText("Nearest SAFRA Centres");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "Community Clubs": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("communityclubs");
-                titleTextView.setText("Nearest Community Clubs");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "Parks@SG": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("relaxsg");
-                titleTextView.setText("Nearest Parks@SG");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "Libraries": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("libraries");
-                titleTextView.setText("Nearest Libraries");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "Retail Pharmacy": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("registered_pharmacy");
-                titleTextView.setText("Nearest Registered Pharmacy");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "Eldercare Services": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("eldercare");
-                titleTextView.setText("Nearest Eldercare Services");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "SportSG Sport Facilities": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("ssc_sports_facilities");
-                titleTextView.setText("Nearest SportSG Sport Facilities");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "Designated Smoking Areas": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("dsa");
-                titleTextView.setText("Nearest Designated Smoking Areas");
-                slotsTextView.setText(" ");
-                callc();
                 break;
             case "Car Parks": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("carpark");
-                titleTextView.setText("Nearest Carparks");
-                slotsTextView.setText(" ");
-                callc();
+
+
                 checkAPI= true;
                 break;
         }
@@ -525,5 +455,197 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             favbottomSheet.setVisibility(View.VISIBLE);
         }
     }
+
+    public void getDestination(int pos){
+        //Log.v(debugTag, "getDestionation");
+        LatLng destination = listview.get(pos).getLatlng();
+        Location current = mFragment.getCurrentLocation();
+        LatLng start = new LatLng(current.getLatitude(), current.getLongitude());
+
+        // Getting URL to the Google Directions API
+        String url = getDirectionsUrl(start, destination);
+
+        DownloadTask downloadTask = new DownloadTask();
+
+        // Start downloading json data from Google Directions API
+        downloadTask.execute(url);
+
+    }
+
+    private String getDirectionsUrl(LatLng origin, LatLng dest) {
+
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+
+        // Sensor enabled
+        String sensor = "sensor=false";
+        String mode;
+        if(checkAPI == false){
+            mode = "mode=walking";
+        }
+        else{
+            mode = "mode=driving";
+        }
+
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" + mode;
+
+        // Output format
+        String output = "json";
+
+        // Building the url to the web service
+        @Nullable ApplicationInfo appInfo = null;
+        String key = null;
+        try {
+            appInfo = this.getPackageManager().getApplicationInfo(this.getPackageName(),PackageManager.GET_META_DATA);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if(appInfo != null){
+            key = appInfo.metaData.getString("com.google.android.geo.API_KEY");
+        }
+
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + key;
+        //Log.v(debugTag, url);
+        return url;
+    }
+
+    private String downloadUrl(String strUrl) throws IOException {
+        String data = "";
+        InputStream iStream = null;
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(strUrl);
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            urlConnection.connect();
+
+            iStream = urlConnection.getInputStream();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+
+            StringBuffer sb = new StringBuffer();
+
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            data = sb.toString();
+
+            br.close();
+
+        } catch (Exception e) {
+            Log.d("Exception", e.toString());
+        } finally {
+            iStream.close();
+            urlConnection.disconnect();
+        }
+        return data;
+    }
+
+
+
+    private class DownloadTask extends AsyncTask<String,Integer, String> {
+
+        @Override
+        protected String doInBackground(String... url) {
+
+            String data = "";
+
+            try {
+                data = downloadUrl(url[0]);
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
+            }
+            return data;
+        }
+
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            //Log.v(debugTag, "DownloadTask postExecute");
+            ParserTask parserTask = new ParserTask();
+
+            parserTask.execute(result);
+
+        }
+
+    }
+
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+
+        // Parsing the data in non-ui thread
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try {
+                jObject = new JSONObject(jsonData[0]);
+                //Log.v(debugTag, String.valueOf(jObject));
+                DirectionsJSONParser parser = new DirectionsJSONParser();
+
+                routes = parser.parse(jObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            Log.v(debugTag, "ParserTask postExecute");
+            ArrayList points = null;
+            PolylineOptions lineOptions = null;
+            MarkerOptions markerOptions = new MarkerOptions();
+            Log.v(debugTag, "result size : " +String.valueOf(result.size()));
+            for (int i = 0; i < result.size(); i++) {
+                points = new ArrayList();
+                lineOptions = new PolylineOptions();
+                Log.v(debugTag, String.valueOf(result.get(i)));
+                List<HashMap<String, String>> path = result.get(i);
+
+                for (int j = 0; j < path.size(); j++) {
+                    HashMap point = path.get(j);
+
+                    double lat = Double.parseDouble((String) point.get("lat"));
+                    double lng = Double.parseDouble((String) point.get("lng"));
+                    LatLng position = new LatLng(lat, lng);
+                    //Log.v(debugTag, String.valueOf(position));
+                    points.add(position);
+                }
+
+                lineOptions.addAll(points);
+                lineOptions.width(12);
+                lineOptions.color(Color.BLUE);
+                lineOptions.geodesic(true);
+
+            }
+
+            // Drawing polyline in the Google Map for the i-th route
+            //mMap.addPolyline(lineOptions);
+            mFragment.plotPolyLine(lineOptions);
+        }
+    }
+
+
+
 
 }

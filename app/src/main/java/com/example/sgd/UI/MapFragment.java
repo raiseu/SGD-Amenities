@@ -38,6 +38,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -56,7 +58,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
     Location currentLocation;
-    //LocationManager locationManager;
+    Polyline path;
 
     @Override
     public void onAttach(@NonNull Context context){
@@ -106,7 +108,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 //Log.v(debugTag, String.valueOf(finalGps_enabled));
                 //Log.v(debugTag, String.valueOf(finalNetwork_enabled));
                 if (isGranted && finalGps_enabled ) {
-                    Log.v(debugTag, "test");
                     // Permission is granted. Continue the action or workflow in your
                     // app.
                     client = LocationServices.getFusedLocationProviderClient(container.getContext());
@@ -213,6 +214,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     }
 
     public void plotMarkers(ArrayList<Amenities> amenList){
+        gMap.clear();
         ArrayList<MarkerOptions> markerList = new ArrayList<MarkerOptions>();
         for(Amenities a : amenList){
             //Log.v(debugTag, a.getIconName());
@@ -232,6 +234,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
     //For Carpark Object
     public void plotMarkers2(ArrayList<Carpark> carparkList){
+        gMap.clear();
         ArrayList<MarkerOptions> markerList2 = new ArrayList<MarkerOptions>();
         for(Carpark cp : carparkList){
             //Log.v(debugTag, a.getIconName());
@@ -264,8 +267,17 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         Log.v(debugTag,marker.getTitle());
         Log.v(debugTag,"The LAT LONG OF THIS MARKER IS:"+String.valueOf(marker.getPosition()));
 
+        mainActivity.callc();
         return false;
     }
 
+    public Location getCurrentLocation(){return currentLocation; }
 
+    public void plotPolyLine(PolylineOptions polylineOptions){
+        if(path != null){
+            path.remove();
+        }
+        path = gMap.addPolyline(polylineOptions);
+
+    }
 }

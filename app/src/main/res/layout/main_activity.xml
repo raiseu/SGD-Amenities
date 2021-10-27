@@ -13,10 +13,12 @@
         layout="@layout/listview" />
 
     <include
-        layout="@layout/grid" />
+        layout="@layout/fav_grid" />
 
     <include
-        layout="@layout/fav_grid" />
+        layout="@layout/grid" />
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
