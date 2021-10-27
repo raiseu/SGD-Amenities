@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 
@@ -19,9 +20,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sgd.Controller.SGDController;
 import com.example.sgd.Entity.Carpark;
+import com.example.sgd.Entity.Amenities;
 import com.example.sgd.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import com.example.sgd.Entity.CustomGrid;
@@ -35,6 +38,10 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
     ArrayList<Carpark> carparkList = new ArrayList<Carpark>();
     ArrayList<Carpark> sortedCarparkList = new ArrayList<Carpark>();
+
+
+    ArrayList<Amenities> amenList = new ArrayList<Amenities>();
+    ArrayList<Amenities> sortedAmenList = new ArrayList<Amenities>();
 
     View horizontalBar, bottomSheet, favbottomSheet, listviewbar;
     private RecyclerView horizontalRecycler, gridRecycler, fav_gridRecycler, list_recycler;
@@ -158,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                         break;
                     case BottomSheetBehavior.STATE_EXPANDED:
                         horizontalRecycler.setVisibility(View.GONE);
+                        favbottomSheet.setVisibility(View.GONE);
                         break;
                     case BottomSheetBehavior.STATE_HIDDEN:
                         horizontalRecycler.setVisibility(View.VISIBLE);
@@ -297,9 +305,31 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             Log.v(debugTag + "amen size", String.valueOf(controller.getAmenList().size()));
             //plot markers
 
-            //
+            listview.clear();
+            listAdapter.notifyDataSetChanged();
+
             if(checkAPI == false){
                 mFragment.plotMarkers(controller.getAmenList());
+                amenList = controller.getAmenList();
+                Location cLocation = null;
+                cLocation = mFragment.returnLocation();
+                if(cLocation != null) {
+                    sortedAmenList = controller.nearestAmen(cLocation, amenList);
+                    Log.v(debugTag, "not null   Size of SORTED amenlist is: " + String.valueOf(sortedAmenList.size()));
+                    String s = "";
+                    for(int i=0; i<sortedAmenList.size(); i++) {
+                        DecimalFormat twoDForm = new DecimalFormat("#.##");
+                        String km = twoDForm.format((sortedAmenList.get(i).getDistance())/1000);
+                        String textViewFirst = "Distance :" + km +" km";
+                        listview.add(new CustomList(sortedAmenList.get(i).getName()
+                                , s
+                                , textViewFirst
+                                ));
+                    }
+                }else{
+                    Log.v(debugTag, "Size of SORTED amen list is : " + String.valueOf(sortedAmenList.size()));
+                    Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(sortedAmenList.size()));
+                }
             }
             else{
                 carparkList = controller.getCarparkList();
@@ -313,10 +343,29 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                     sortedCarparkList = controller.nearestCarpark(cLocation, carparkList);
                     Log.v(debugTag, "not null   Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
 
+                    String s = "";
                     for(int i=0; i<sortedCarparkList.size(); i++)
                     {
-                        listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment(), String.valueOf(sortedCarparkList.get(i).getAvailableLots())));
+                        DecimalFormat twoDForm = new DecimalFormat("#.##");
+                        String km = twoDForm.format((sortedCarparkList.get(i).getDistance())/1000);
+                        String textViewFirst = "Distance :" + km +" km";
+
+                        Log.v(debugTag,"Distance " + String.valueOf(sortedCarparkList.get(i).getDistance()));
+                        listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment()
+                                , String.valueOf(sortedCarparkList.get(i).getAvailableLots())
+                                , textViewFirst ));
+
+                        String carparkid = sortedCarparkList.get(i).getCarParkID();
+                        String agency = sortedCarparkList.get(i).getAgency();
+
+                        if(agency.equals("HDB")){
+
+                        }
+                        else if (agency.equals("URA")){
+
+                        }
                     }
+                    listAdapter.notifyDataSetChanged();
 
                 }else{
                     Log.v(debugTag, "Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
@@ -372,49 +421,89 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     }
     @Override
     public void CallLocations(int position, CustomGrid helper) {
+        TextView titleTextView = (TextView) findViewById(R.id.titleTopLeft);
+        TextView slotsTextView = (TextView) findViewById(R.id.titleTopRight);
         AsyncJobz as = new AsyncJobz();
         checkAPI = false;
         switch(helper.getTitle()){
             case "Supermarkets": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("supermarkets");
+                titleTextView.setText("Nearest Supermarkets");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "HDB Branches": Log.d("call","custom grid call location " + position + helper.getTitle());
+                //as.execute("hdb_branches");
+                titleTextView.setText("Nearest HDB Branches");
+                slotsTextView.setText(" ");
                 as.execute("hdb_branches");
+                callc();
                 break;
             case "Hawker Centres": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("hawkercentre");
+                titleTextView.setText("Nearest Hawker Centres");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "Gyms@SG": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("exercisefacilities");
+                titleTextView.setText("Nearest Gyms@SG");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "SAFRA Centres": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("hsgb_safra");
+                titleTextView.setText("Nearest SAFRA Centres");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "Community Clubs": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("communityclubs");
+                titleTextView.setText("Nearest Community Clubs");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "Parks@SG": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("relaxsg");
+                titleTextView.setText("Nearest Parks@SG");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "Libraries": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("libraries");
+                titleTextView.setText("Nearest Libraries");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "Retail Pharmacy": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("registered_pharmacy");
+                titleTextView.setText("Nearest Registered Pharmacy");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "Eldercare Services": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("eldercare");
+                titleTextView.setText("Nearest Eldercare Services");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "SportSG Sport Facilities": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("ssc_sports_facilities");
+                titleTextView.setText("Nearest SportSG Sport Facilities");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "Designated Smoking Areas": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("dsa");
+                titleTextView.setText("Nearest Designated Smoking Areas");
+                slotsTextView.setText(" ");
+                callc();
                 break;
             case "Car Parks": Log.d("call","custom grid call location " + position + helper.getTitle());
                 as.execute("carpark");
-
-
+                titleTextView.setText("Nearest Carparks");
+                slotsTextView.setText(" ");
+                callc();
                 checkAPI= true;
                 break;
         }

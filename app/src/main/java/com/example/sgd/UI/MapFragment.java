@@ -264,10 +264,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         Log.v(debugTag,marker.getTitle());
         Log.v(debugTag,"The LAT LONG OF THIS MARKER IS:"+String.valueOf(marker.getPosition()));
 
-
-
-
-        mainActivity.callc();
         return false;
     }
 

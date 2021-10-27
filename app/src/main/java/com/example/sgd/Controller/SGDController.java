@@ -2,10 +2,14 @@ package com.example.sgd.Controller;
 
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.sgd.Entity.Amenities;
 import com.example.sgd.Entity.Carpark;
+import com.example.sgd.Entity.HDBCarpark;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,6 +29,29 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
 
 public class SGDController {
     URL url;
@@ -112,6 +139,14 @@ public class SGDController {
                             case"hawkercentre":
                             case"hsgb_safra":
                             case"communityclubs":
+                                newAmen = new Amenities(
+                                        curObject.getString("NAME"),
+                                        null,
+                                        curObject.getString("ADDRESSPOSTALCODE"),
+                                        curObject.getString("LatLng"));
+                                newAmen.setIconName("ic_" + themeName + "_25");
+                                amenList.add(newAmen);
+                                break;
                             case"relaxsg":
                             case"libraries":
                             case"registered_pharmacy":
@@ -145,7 +180,7 @@ public class SGDController {
                             case"dsa":
                                 newAmen = new Amenities(
                                         curObject.getString("NAME"),
-                                        curObject.getString("DESCRIPTION"),
+                                        null,
                                         "NULL",
                                         curObject.getString("LatLng"));
                                 newAmen.setIconName("ic_" + themeName + "_25");
@@ -325,97 +360,372 @@ public class SGDController {
                 e.printStackTrace();
             }
 
-            //retrieving HDB Carparks
-            String url2 = "https://developers.onemap.sg/privateapi/themesvc/retrieveTheme?queryName=hdb_car_park_information&token=" + oneMapToken;
-            request = new Request.Builder()
-                    .url(url2)
-                    .build();
-            httpClient = new OkHttpClient();
-            //Log.v(debugTag ,url);
-            //synchronus call
-            try (Response response = httpClient.newCall(request).execute()) {
-                if (response.isSuccessful()) {
-                    jsonObject = new JSONObject(response.body().string());
-                    jsonArray = jsonObject.getJSONArray("SrchResults");
-                    JSONObject curObject;
-                    for (int i = 1; i < jsonArray.length(); i++) {
-                        //Log.v(debugTag ,String.valueOf(i));
-                        curObject = (JSONObject) jsonArray.get(i);
-                        Carpark newHDBCarpark;
+        }
+    }
 
-                        String[] coordList = curObject.getString("LatLng").split(" ");
-                        double latitude = Double.parseDouble(coordList[0]);
-                        double longitude = Double.parseDouble(coordList[1]);
-
-                        newHDBCarpark = new Carpark(
+    public HDBCarpark findHDBCarpark(String carParkID)
+    {
+        //retrieving HDB Carparks
+        String url2 = "https://developers.onemap.sg/privateapi/themesvc/retrieveTheme?queryName=hdb_car_park_information&token=" + oneMapToken;
+        request = new Request.Builder()
+                .url(url2)
+                .build();
+        httpClient = new OkHttpClient();
+        //Log.v(debugTag, url);
+        //synchronus call
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                jsonObject = new JSONObject(response.body().string());
+                jsonArray = jsonObject.getJSONArray("SrchResults");
+                JSONObject curObject;
+                for (int i = 1; i < jsonArray.length(); i++) {
+                    //Log.v(debugTag ,String.valueOf(i));
+                    curObject = (JSONObject) jsonArray.get(i);
+                    if (curObject.getString("NAME").equals(carParkID))
+                    {
+                        HDBCarpark hdb1 = new HDBCarpark(
                                 curObject.getString("NAME"),
-                                "",
                                 curObject.getString("DESCRIPTION"),
-                                curObject.getString("LatLng"),
-                                latitude,
-                                longitude,
-                                0,
-                                "",
-                                "HDB");
-                        newHDBCarpark.setIconName("ic_carparks_25");
-                        carparkList.add(newHDBCarpark);
+                                curObject.getString("CAR_PARK_TYPE"),
+                                curObject.getString("SHORT_TERM_PARKING"),
+                                curObject.getString("NIGHT_PARKING"),
+                                curObject.getString("TYPE_OF_PARKING_SYSTEM"),
+                                curObject.getString("FREE_PARKING")
+                        );
+                        return hdb1;
                     }
                 }
-                else{
-                    Log.v(debugTag ,String.valueOf(response.code()));
-                }
-            } catch(Exception e){
-                e.printStackTrace();
+                Log.v(debugTag, "No matching OneMap HDB Carpark");
+                return null;
             }
+            else{
+                Log.v(debugTag, String.valueOf(response.code()));
+                return null;
+            }
+        } catch(Exception e){
+            e.printStackTrace();
         }
-
-
+        return null;
     }
 
     public ArrayList nearestAmen(Location currentLoc, ArrayList<Amenities> amenList){
-        ArrayList<Amenities> sortedList = new ArrayList<Amenities>();
-        int range = 5; //5km
-
-
-        return sortedList;
+        ArrayList<Amenities> sortedAmenList = new ArrayList<Amenities>();
+        int range = 5000; //5000m //5km
+        sortedAmenList.clear();
+        for (int i = 0; i < amenList.size(); i++)
+        {
+            Amenities amen = amenList.get(i);
+            Location amenLoc = new Location("");
+            String[] coordList = amenList.get(i).getLatlng().split(",");
+            double latitude = Double.parseDouble(coordList[0]);
+            double longitude = Double.parseDouble(coordList[1]);
+            amenLoc.setLatitude(latitude);
+            amenLoc.setLongitude(longitude);
+            float distance = currentLoc.distanceTo(amenLoc);
+            amen.setDistance(distance);
+            if(amen.getDistance() < range){
+                sortedAmenList.add(amen);
+            }
+        }
+        Collections.sort(sortedAmenList);
+        return sortedAmenList;
     }
 
     public ArrayList nearestCarpark(Location currentLoc, ArrayList<Carpark> carparkList)
     {
         ArrayList<Carpark> sortedCarparkList = new ArrayList<Carpark>();
-        int range = 1100;
+        int range = 5000; //5000m //5km
+        sortedCarparkList.clear();
         for (int i = 0; i < carparkList.size(); i++)
         {
-
             Carpark cp = carparkList.get(i);
-            //cpLoc = cp.retrieveLatLng();
             Location cpLoc = new Location("");
             cpLoc.setLatitude(cp.getLatitude());
             cpLoc.setLongitude(cp.getLongitude());
             float distance = currentLoc.distanceTo(cpLoc);
             cp.setDistance(distance);
-
-            if(i<10){
-                Log.v(debugTag, cp.getLocation());//location
-                Log.v(debugTag, cp.getCarParkID());//
-                Log.v(debugTag, cp.getLotType());
-                Log.v(debugTag, cp.getIconName());
-                Log.v(debugTag, cp.getDevelopment());//development
-                Log.v(debugTag, cp.getArea());//
-                Log.v(debugTag, String.valueOf(cp.getAvailableLots()));
-                Log.v(debugTag, cp.getAgency());
-            }
-
-            //Log.v(debugTag,  "distance " + String.valueOf(cp.getDistance()));
-
             if(cp.getDistance() < range){
-                Log.v(debugTag,  "distance " + String.valueOf(cp.getDistance()));
-                Log.v(debugTag, "agency" + cp.getAgency());
                 sortedCarparkList.add(cp);
             }
         }
         Collections.sort(sortedCarparkList);
-
         return sortedCarparkList;
     }
+
+
+    public String getToken(String apiKey) throws IOException, Exception {
+        URL url = new URL("https://www.ura.gov.sg/uraDataService/insertNewToken.action");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("AccessKey", apiKey);
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36");
+        int responseCode = connection.getResponseCode(); //GET RESPONSE <200>
+
+
+        if(responseCode != 200) {
+            throw new RuntimeException("HTTP RESPONSE CODE: " +responseCode);
+        }
+        else {
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuffer response = new StringBuffer();
+            String readLine = null;
+
+            while ((readLine = in .readLine()) != null) {
+                response.append(readLine);
+            } in.close();
+
+            // print result
+            //System.out.println("JSON String Result " + response);
+
+
+
+            JSONObject jobject = new JSONObject(response.toString());
+            String token = "uCda1W6MTffK5eqf8-E6cy2H5apD6e8A+34GyGye9P9f8fEKv2P4De84n+uAYaS7C51yd4+6sBjCe23dwb241DYQde-R1m7-46Kn";//(String) jobject.get("Result");
+
+            System.out.println(token);
+            return token;
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void CrossCheck() throws IOException, Exception {
+        String token = getToken("566492d4-a351-4aee-8560-247d125645ff");
+        String readLine1=null;
+        URL url1 = new URL("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability");
+        HttpURLConnection connection1 = (HttpURLConnection) url1.openConnection();
+        connection1.setRequestMethod("GET");
+        connection1.setRequestProperty("AccessKey", "566492d4-a351-4aee-8560-247d125645ff");
+        connection1.addRequestProperty("Token", token);
+        int responseCode1 = connection1.getResponseCode(); //GET RESPONSE <200>
+
+        BufferedReader in1 = new BufferedReader(new InputStreamReader(connection1.getInputStream()));
+        StringBuffer response1 = new StringBuffer();
+        while ((readLine1 = in1 .readLine()) != null) {
+            response1.append(readLine1);
+        } in1.close();
+
+        String readLine2 = null;
+        URL url2 = new URL("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details");
+        HttpURLConnection connection2 = (HttpURLConnection) url2.openConnection();
+        connection2.setRequestMethod("GET");
+        connection2.setRequestProperty("AccessKey", "566492d4-a351-4aee-8560-247d125645ff");
+        connection2.addRequestProperty("Token", token);
+        int responseCode2 = connection1.getResponseCode(); //GET RESPONSE <200>
+
+        BufferedReader in2 = new BufferedReader(new InputStreamReader(connection2.getInputStream()));
+        StringBuffer response2 = new StringBuffer();
+        while ((readLine2 = in2 .readLine()) != null) {
+            response2.append(readLine2);
+        } in2.close();
+
+        JSONObject jobject2 = new JSONObject(response2.toString());
+
+        JSONArray jsonarr_2 = (JSONArray) jobject2.get("Result");
+        String carparkNo;
+        List<String> listOfCarparks= new ArrayList<String>();
+        for(int i=0; i<jsonarr_2.length(); i++) {
+            carparkNo = (String) ((JSONObject)jsonarr_2.get(i)).get("ppCode");
+            listOfCarparks.add(carparkNo);
+        }
+        Set<String> listWithoutDuplicates = new LinkedHashSet<String>(listOfCarparks);
+        listOfCarparks.clear();
+        listOfCarparks.addAll(listWithoutDuplicates);
+        String ppName = "";
+        int carCount = 0, motorcycleCount = 0, heavyVehicleCount = 0;
+        List<String[]> list = new ArrayList<>();
+        String[] header = {"Carpark No", "Start Time", "End Time", "Parking Lot Availability","Parking Lot Capacity", "Vehicle Type",
+                "Weekday Rate", "Weekday Min", "Saturday Rate", "Saturday Min","Sunday/PH Rate","Sunday/PH Min"};
+        list.add(header);
+        carparkNo = "";
+        JSONObject jsonobj_2;
+        int count = 0;
+        JSONArray json_arr;
+        jsonobj_2 = (JSONObject)jsonarr_2.get(count);
+        for(int i=0; i<listOfCarparks.size(); i++) {
+            carCount = 0;
+            motorcycleCount = 0;
+            heavyVehicleCount = 0;
+            carparkNo = listOfCarparks.get(i);
+            ppName = (String) jsonobj_2.get("ppCode");
+            System.out.println("carparkNo: " + carparkNo);
+            //For loop to find where the rates and details of the carpark that we found
+            //from the carpark lot availability in the carpark details json array
+            for (int z = 0; z < jsonarr_2.length(); z++) {
+                jsonobj_2 = (JSONObject)jsonarr_2.get(z);
+                ppName = (String)jsonobj_2.get("ppCode");
+                if( ppName.equals(carparkNo)){
+                    count = z;
+                    break;
+                }
+            }
+            json_arr = new JSONArray();
+            jsonobj_2 = (JSONObject)jsonarr_2.get(count);
+            try {
+                while(ppName.equals(carparkNo))
+                {
+                    String vehicleType =(String) jsonobj_2.get("vehCat");
+                    if(vehicleType.equals("Car"))
+                    {
+                        carCount++;
+                    } else if(vehicleType.equals("Motorcycle"))
+                    {
+                        motorcycleCount++;
+                    } else if(vehicleType.equals("Heavy Vehicle"))
+                    {
+                        heavyVehicleCount++;
+                    }
+                    json_arr.put(jsonobj_2);
+                    count++;
+                    if(count >= jsonarr_2.length()) break;
+                    jsonobj_2 = (JSONObject)jsonarr_2.get(count);
+                    ppName = (String) jsonobj_2.get("ppCode");
+
+                }
+                System.out.println(carCount + " " +motorcycleCount + " " +heavyVehicleCount);
+                CarparkRatesParsing(json_arr, carCount, heavyVehicleCount, motorcycleCount);
+            }
+            catch(JSONException e) {
+                System.out.println("JSONException from getCarparkRatesForCarparkNo" + e);
+            }
+            //Pass in the json array that has the rates for the specified carpark number, car count, heavy vehicle count and motorcycle count
+        }
+
+    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void CarparkRatesParsing(JSONArray data, int carCount, int heavyVehicleCount, int motorcycleCount) {
+        String startTime, endTime, weekdayRate, weekdayMin, satdayRate, satdayMin, sundayPH, sundayPHMin, lotCapacity;
+        int i, diff;
+        System.out.println("**Mon-Sat**");
+        System.out.println("\nCar");
+        System.out.println("Time Period\n");
+        if(data.length() > 0)
+        {
+            try {
+                JSONObject jsonobj_2 = (JSONObject)data.get(0);
+                lotCapacity = jsonobj_2.get("parkCapacity").toString();
+                for( i=0; i<carCount; i++)
+                {
+                    diff = 0;
+                    jsonobj_2 = (JSONObject)data.get(i);
+                    startTime = (String) jsonobj_2.get("startTime");
+                    endTime = (String) jsonobj_2.get("endTime");
+                    weekdayMin = (String) jsonobj_2.get("weekdayMin");
+                    weekdayRate = (String) jsonobj_2.get("weekdayRate");
+                    diff =checkDifferenceInTime(startTime, endTime, weekdayMin);
+                    if(diff == 1)
+                    {
+                        i++;
+                        System.out.println("**Mon - Sun**\n");
+                        System.out.println("Max Rate from \n" + startTime + " - " + endTime + " : " + weekdayRate + " per " + weekdayMin + "\n");
+                        continue;
+                    }
+                    satdayRate = (String) jsonobj_2.get("satdayRate");
+                    satdayMin = (String) jsonobj_2.get("satdayMin");
+
+                    sundayPH = (String) jsonobj_2.get("sunPHRate");
+                    sundayPHMin = (String) jsonobj_2.get("sunPHMin");
+                    System.out.println(startTime + " - " + endTime + " : " + weekdayRate + " per " + weekdayMin + "\n");
+                }
+                for(int j=0; j<heavyVehicleCount; j++)
+                {
+                    diff = 0;
+                    jsonobj_2 = (JSONObject)data.get(i);
+                    startTime = (String) jsonobj_2.get("startTime");
+                    endTime = (String) jsonobj_2.get("endTime");
+                    weekdayMin = (String) jsonobj_2.get("weekdayMin");
+                    weekdayRate = (String) jsonobj_2.get("weekdayRate");
+                    diff=checkDifferenceInTime(startTime, endTime, weekdayMin);
+                    if(diff == 1)
+                    {
+                        i++;
+                        System.out.println("**Mon - Sun**\n");
+                        System.out.println("Max Rate from \n" + startTime + " - " + endTime + " : " + weekdayRate + " per " + weekdayMin + "\n");
+                        continue;
+                    }
+                    satdayRate = (String) jsonobj_2.get("satdayRate");
+                    satdayMin = (String) jsonobj_2.get("satdayMin");
+
+                    sundayPH = (String) jsonobj_2.get("sunPHRate");
+                    sundayPHMin = (String) jsonobj_2.get("sunPHMin");
+
+                    System.out.println(startTime + " - " + endTime + " : " + weekdayRate + " per " + weekdayMin + "\n");
+                    i++;
+                }
+                for(int z = 0; z<motorcycleCount; z++)
+                {
+                    diff = 0;
+                    jsonobj_2 = (JSONObject)data.get(i);
+                    startTime = (String) jsonobj_2.get("startTime");
+                    endTime = (String) jsonobj_2.get("endTime");
+                    weekdayMin = (String) jsonobj_2.get("weekdayMin");
+                    weekdayRate = (String) jsonobj_2.get("weekdayRate");
+                    diff =checkDifferenceInTime(startTime, endTime, weekdayMin);
+                    if(diff == 1)
+                    {
+                        i++;
+                        System.out.println("**Mon - Sun**\n");
+                        System.out.println("Max Rate from \n" + startTime + " - " + endTime + " : " + weekdayRate + " per " + weekdayMin + " \n");
+                        continue;
+                    }
+                    satdayRate = (String) jsonobj_2.get("satdayRate");
+                    satdayMin = (String) jsonobj_2.get("satdayMin");
+
+                    sundayPH = (String) jsonobj_2.get("sunPHRate");
+                    sundayPHMin = (String) jsonobj_2.get("sunPHMin");
+
+                    System.out.println(startTime + " - " + endTime + " : " + weekdayRate + " per " + weekdayMin + " \n");
+                    i++;
+                }
+
+                System.out.println("");
+            }
+            catch(JSONException e)
+            {
+                System.out.println("JSON exception error" + e);
+            }
+            //Do lots later after I settle the carpark details
+            //String carparkNo = (String) jsonobj_1.get("carparkNo");
+        }
+        else
+            System.out.println("data json array is length 0");
+
+
+
+    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public int checkDifferenceInTime(String startTime, String endTime, String weekdayMin)
+    {
+        LocalDate endDate = LocalDate.now(), startDate = LocalDate.now();
+        long diffMinutes;
+        int count = 0;
+        if(LocalTime.parse(startTime, DateTimeFormatter.ofPattern("hh.mm a", Locale.ENGLISH) ).compareTo(
+                LocalTime.parse(startTime, DateTimeFormatter.ofPattern("hh.mm a", Locale.ENGLISH))) > 0)
+            endDate = LocalDate.now().plusDays(1);
+
+        LocalDateTime s    = LocalDateTime.of(
+                startDate,
+                LocalTime.parse(startTime, DateTimeFormatter.ofPattern("hh.mm a", Locale.ENGLISH) ));
+        LocalDateTime d = LocalDateTime.of(
+                endDate,
+                LocalTime.parse(endTime, DateTimeFormatter.ofPattern("hh.mm a", Locale.ENGLISH) ));
+
+        diffMinutes =  Duration.between(s, d).toMinutes();
+        String substr = "";
+
+        for(int i = 0; i < weekdayMin.length(); i++)
+        {
+            if(Character.isDigit(weekdayMin.charAt(i)))
+            {
+                substr += weekdayMin.charAt(i);
+            }
+            else break;
+        }
+        if(diffMinutes == Long.parseLong(substr))
+        {
+            count++;
+        }
+        return count;
+    }
+
+
+
 }
