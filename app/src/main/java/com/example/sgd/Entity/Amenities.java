@@ -5,12 +5,13 @@ import android.graphics.drawable.Drawable;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 
-public class Amenities {
+public class Amenities implements Comparable<Amenities>{
     private String name;
     private String description;
     private String postal;
     private String latlng;
     private String iconName;
+    private float distance;
 
     //supermarket Constructor
     public Amenities(String name, String description, String postal, String latlng) {
@@ -18,6 +19,23 @@ public class Amenities {
         this.description = description;
         this.postal = postal;
         this.latlng = latlng;
+        this.distance = -1;
+    }
+
+    public int compareTo(Amenities other)
+    {
+        Float dist = (Float)distance;
+        Float otherDist = (Float)other.getDistance();
+        return dist.compareTo(otherDist);
+    }
+
+    public void setDistance(float distance)
+    {
+        this.distance = distance;
+    }
+    public float getDistance()
+    {
+        return distance;
     }
 
     public String getName() {
