@@ -41,6 +41,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class SGDController {
@@ -429,7 +430,7 @@ public class SGDController {
 
 
         ArrayList<Carpark> sortedCarparkList = new ArrayList<Carpark>();
-        int range = 1500; //1500m //1.5km
+        int range = 5000; //1500m //1.5km
         for (int i = 0; i < carparkList.size(); i++)
         {
             Carpark cp = carparkList.get(i);
@@ -452,45 +453,35 @@ public class SGDController {
 
 
     public ArrayList<LTACarpark> fireBase(String carParkName){
-        FirebaseDatabase database =FirebaseDatabase.getInstance();
-        DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
+        final AtomicBoolean done = new AtomicBoolean(false);
+        ltaCarparkList.clear();
+        DatabaseReference reff = FirebaseDatabase.getInstance().getReference().child(carParkName);
 
-        reff.addValueEventListener(new ValueEventListener() {
+        reff.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String saturdayCharges = null;
-                String sundayPubHolidayCharges =null;
-                String weekDayAfter5Charges =null;
-                String weekDayBefore5Charges =null;
-                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
-                    if((snapshot.getKey()).equals(carParkName)){
-                        Log.v(debugTag, "FIREBASE KIDDOS"+snapshot);
-                        saturdayCharges =  snapshot.child("Saturday").getValue().toString();
-                        sundayPubHolidayCharges = snapshot.child("SundayPubHoliday").getValue().toString();
-                        weekDayAfter5Charges =  snapshot.child("WeekDayAfter5").getValue().toString();
-                        weekDayBefore5Charges =  snapshot.child("WeekDayBefore5").getValue().toString();
+                if(dataSnapshot.exists()){
+                    String saturdayCharges = (String) dataSnapshot.child("Saturday").getValue();
+                    String sundayPubHolidayCharges = (String) dataSnapshot.child("SundayPubHoliday").getValue();
+                    String weekDayAfter5Charges = (String) dataSnapshot.child("WeekDayAfter5").getValue();
+                    String weekDayBefore5Charges =  (String) dataSnapshot.child("WeekDayBefore5").getValue();
+/*                    Log.v(debugTag, "FIREBASE Value is: " + saturdayCharges);
+                    Log.v(debugTag, "FIREBASE Value is: " + sundayPubHolidayCharges);
+                    Log.v(debugTag, "FIREBASE Value is: " + weekDayAfter5Charges);
+                    Log.v(debugTag, "FIREBASE Value is: " + weekDayBefore5Charges);*/
 
-                        Log.v(debugTag, "FIREBASE Value is: " + saturdayCharges);
-                        Log.v(debugTag, "FIREBASE Value is: " + sundayPubHolidayCharges);
-                        Log.v(debugTag, "FIREBASE Value is: " + weekDayAfter5Charges);
-                        Log.v(debugTag, "FIREBASE Value is: " + weekDayBefore5Charges);
-
-                        LTACarpark newLTACarPark = new LTACarpark(saturdayCharges, sundayPubHolidayCharges, weekDayAfter5Charges,
-                                weekDayBefore5Charges);
-                        ltaCarparkList.add(newLTACarPark);
-
-                    }
-                    else{
-                        //Log.v(debugTag, "Can't find this place in LTA Database");
-                    }
+                    LTACarpark newLTACarkPark = new LTACarpark(saturdayCharges, sundayPubHolidayCharges, weekDayAfter5Charges,weekDayBefore5Charges);
+                    ltaCarparkList.add(newLTACarkPark);
                 }
+                done.set(false);
             }
-
             @Override
             public void onCancelled(DatabaseError error) {
+
             }
         });
-
+        while(!done.get());
+        Log.v(debugTag, "WHAT SIZE IS THIS FIREBASE: "+ltaCarparkList.size());
         return ltaCarparkList;
     }
 

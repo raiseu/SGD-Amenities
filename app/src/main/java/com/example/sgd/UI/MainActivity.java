@@ -409,26 +409,17 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                                     //break;
                                 }
                             }else{
-                                Log.v(debugTag, "hdbcarpark list is empty" + carParkType);
                             }
                         }
                         else if (agency.equals("URA")){
                             Log.v(debugTag, "URA here " + hdbCarparkList.get(i).getName());
-                            Log.v(debugTag, "URA here " + hdbCarparkList.get(i).getCarParkType());
-
                         } else if (agency.equals("LTA")) {
                             Log.v(debugTag, "LTA here " + carparkList.get(i).getCarParkID());
-                            /*ArrayList<LTACarpark> ltaCarparkList = new ArrayList<LTACarpark>();
-                            ltaCarparkList = controller.fireBase(sortedCarparkList.get(i).getDevelopment());
+                            //ArrayList<LTACarpark> ltaCarparkList = new ArrayList<LTACarpark>();
+                            //ltaCarparkList = controller.fireBase(sortedCarparkList.get(i).getDevelopment());
 
-                            Log.v(debugTag, "testingawea" + sortedCarparkList.get(i).getDevelopment());
-
-                               //Log.v(debugTag, "testingawea" + ltaCarparkList.get(0).getSaturday());
-
-                            ArrayList<LTACarpark> ltaCarparkListt = new ArrayList<LTACarpark>();
-                            ltaCarparkListt = controller.getLTACarparkList();
-
-                            Log.v(debugTag, "size : " + ltaCarparkList.size());*/
+                            //Log.v(debugTag, "qwe" + ltaCarparkList.get(0).getSaturday());
+                            //Log.v(debugTag, "size : " + ltaCarparkList.size());
                         }
 
                         Log.v(debugTag, "testingawea" + nightParking);
