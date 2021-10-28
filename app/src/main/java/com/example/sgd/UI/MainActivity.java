@@ -4,12 +4,15 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -26,7 +29,10 @@ import com.example.sgd.Entity.Amenities;
 import com.example.sgd.Entity.Carpark;
 import com.example.sgd.Entity.DirectionsJSONParser;
 import com.example.sgd.Entity.HDBCarpark;
+import com.example.sgd.Entity.LTACarpark;
 import com.example.sgd.R;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -88,13 +94,13 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             "Carpark1", "Carpark2", "Carpark3", "Carpark4",
     };
 
-
-
     String[] slots = {
             "150/300", "160/300", "200/300", "300/300", "150/300", "160/300", "200/300", "300/300", "200/300", "300/300"
     };
 
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,6 +113,12 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         fragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView, mFragment).commit();
         controller = new SGDController();
+
+
+
+
+
+
 
 
         //horizontal bar
@@ -169,6 +181,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         favmBottomSheetBehavior = BottomSheetBehavior.from(favbottomSheet);
+
+
 
         mBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -344,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                                 , s
                                 , textViewFirst
                                 , sortedAmenList.get(i).retrieveLatLng()
-                                , s , s
+                                , s , s, s, s, s
                         ));
                     }
                 }else{
@@ -358,7 +372,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 Location cLocation = null;
                 cLocation = mFragment.returnLocation();
                 if(cLocation != null) {
-                    Log.v(debugTag,String.valueOf( cLocation.getLatitude()) + String.valueOf( cLocation.getLongitude()));
                     sortedCarparkList = controller.nearestCarpark(cLocation, carparkList);
                     Log.v(debugTag, "not null   Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
                     String s = "";
@@ -379,35 +392,55 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                             String a = " ";
                             hdbCarparkList = controller.getHDBCarparkList();
                             if(hdbCarparkList.size() != 0) {
-                                Log.v(debugTag, "Size of hdbcarparklist : " + String.valueOf(hdbCarparkList.size()));
                                 for(int j=0; j<hdbCarparkList.size(); j++){
                                     if(hdbCarparkList.get(j).getName().equals(carparkid)){
                                         carParkType = capitalizeString(hdbCarparkList.get(j).getCarParkType());
                                         shortTermParking = capitalizeString(hdbCarparkList.get(j).getShortTermParking());
                                         shortTermParking = shortTermParking + " Short Term Parking";
-                                        nightParking = hdbCarparkList.get(j).getShortTermParking();
+                                        nightParking = hdbCarparkList.get(j).getNightParking();
                                         if(nightParking.equals("YES")){
                                             nightParking = "Has Night Parking";
                                         }else{
-                                            nightParking =  nightParking + "Night Parking";
+                                            nightParking =  capitalizeString(nightParking) + "Night Parking";
                                         }
                                         parkingType = capitalizeString(hdbCarparkList.get(j).getParkingSystemType());
                                         freeParking = capitalizeString(hdbCarparkList.get(j).getFreeParking());
                                     }
+                                    //break;
                                 }
                             }else{
                                 Log.v(debugTag, "hdbcarpark list is empty" + carParkType);
                             }
                         }
                         else if (agency.equals("URA")){
-                            Log.v(debugTag, "URA here " + carParkType);
+                            Log.v(debugTag, "URA here " + hdbCarparkList.get(i).getName());
+                            Log.v(debugTag, "URA here " + hdbCarparkList.get(i).getCarParkType());
+
+                        } else if (agency.equals("LTA")) {
+                            Log.v(debugTag, "LTA here " + carparkList.get(i).getCarParkID());
+                            /*ArrayList<LTACarpark> ltaCarparkList = new ArrayList<LTACarpark>();
+                            ltaCarparkList = controller.fireBase(sortedCarparkList.get(i).getDevelopment());
+
+                            Log.v(debugTag, "testingawea" + sortedCarparkList.get(i).getDevelopment());
+
+                               //Log.v(debugTag, "testingawea" + ltaCarparkList.get(0).getSaturday());
+
+                            ArrayList<LTACarpark> ltaCarparkListt = new ArrayList<LTACarpark>();
+                            ltaCarparkListt = controller.getLTACarparkList();
+
+                            Log.v(debugTag, "size : " + ltaCarparkList.size());*/
                         }
+
+                        Log.v(debugTag, "testingawea" + nightParking);
                         listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment()
                                 , String.valueOf(sortedCarparkList.get(i).getAvailableLots())
                                 , textViewFirst
                                 , sortedCarparkList.get(i).retrieveLatLng()
                                 , carParkType
+                                , parkingType
                                 , shortTermParking
+                                , freeParking
+                                , nightParking
                                 ));
                     }
                     listAdapter.notifyDataSetChanged();
@@ -568,7 +601,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
                 as.execute("carpark");
                 titleTextView.setText("Nearest Carparks");
-                slotsTextView.setText(" ");
+                slotsTextView.setText("Available Lots");
                 callc();
                 checkAPI = true;
                 break;

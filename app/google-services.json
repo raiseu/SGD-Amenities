@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "285504805287",
+    "firebase_url": "https://cz2005-carparkdb-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "cz2005-carparkdb",
+    "storage_bucket": "cz2005-carparkdb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:285504805287:android:8a9216b6782c6a5b067e82",
+        "android_client_info": {
+          "package_name": "com.example.sgd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "285504805287-4oncc79ggpc30gle5bq3a36lmg1sarrk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEOQ14ZKghiG24tfvNmqnCgsgSk7HT0iQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "285504805287-4oncc79ggpc30gle5bq3a36lmg1sarrk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:285504805287:android:e6f75fa8e4948b01067e82",
+        "android_client_info": {
+          "package_name": "com.example.sgd.Controller"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "285504805287-4oncc79ggpc30gle5bq3a36lmg1sarrk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEOQ14ZKghiG24tfvNmqnCgsgSk7HT0iQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "285504805287-4oncc79ggpc30gle5bq3a36lmg1sarrk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

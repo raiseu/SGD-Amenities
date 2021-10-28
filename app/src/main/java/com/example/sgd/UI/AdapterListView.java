@@ -44,6 +44,9 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
         holder.textViewFirst.setText(helper.getTextViewFirst());
         holder.textViewSecond.setText(helper.getTextViewSecond());
         holder.textViewThird.setText(helper.getTextViewThird());
+        holder.textViewFour.setText(helper.getTextViewFour());
+        holder.textViewFifth.setText(helper.getTextViewFifth());
+        holder.textViewSix.setText(helper.getTextViewSix());
 
         boolean isExpanded = listLocations.get(position).isExpanded();
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
@@ -56,7 +59,8 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
 
 
         ConstraintLayout expandableLayout;
-        TextView titleTextView, slotsTextView, textViewFirst, textViewSecond, textViewThird;
+        TextView titleTextView, slotsTextView, textViewFirst, textViewSecond, textViewThird,
+                textViewFour, textViewFifth, textViewSix;
 
         public ViewHold(@NonNull final View itemView) {
             super(itemView);
@@ -67,6 +71,9 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
             textViewFirst = itemView.findViewById(R.id.textViewFirst);
             textViewSecond = itemView.findViewById(R.id.textViewSecond);
             textViewThird = itemView.findViewById(R.id.textView3);
+            textViewFour = itemView.findViewById(R.id.textView4);
+            textViewFifth = itemView.findViewById(R.id.textView5);
+            textViewSix = itemView.findViewById(R.id.textView6);
 
             titleTextView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <FrameLayout
         android:id="@+id/fragmentContainerView"
         android:name="com.example.sgd.MainActivity"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+
 
     <include
         layout="@layout/listview" />
@@ -19,12 +22,11 @@
         layout="@layout/grid" />
 
 
-
     <LinearLayout
+        android:id="@+id/horizontalbar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="bottom"
-        android:id="@+id/horizontalbar"
         android:orientation="horizontal">
 
         <ScrollView

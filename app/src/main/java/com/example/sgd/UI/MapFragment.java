@@ -4,6 +4,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -44,7 +47,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickListener, OnMapReadyCallback{
         //, GoogleMap.OnMapLoadedCallback {
@@ -59,6 +64,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     private LocationCallback locationCallback;
     Location currentLocation;
     Polyline path;
+    SearchView searchView;
 
     @Override
     public void onAttach(@NonNull Context context){
@@ -88,6 +94,39 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         }catch (Exception e){
             Log.v(debugTag, e.toString());
         }
+
+        searchView = (SearchView) rootView.findViewById(R.id.idSearchView);
+        searchView.setFocusable(false);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                String location = searchView.getQuery().toString();
+                List<Address> addressList = null;
+
+                if (location != null || location.equals("")) {
+                    Geocoder geocoder = new Geocoder(mainActivity);
+                    try {
+                        addressList = geocoder.getFromLocationName(location, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Address address = addressList.get(0);
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    gMap.addMarker(new MarkerOptions().position(latLng).title(location));
+                    gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+
+
+                    currentLocation.setLongitude(address.getLongitude());
+                    currentLocation.setLatitude(address.getLatitude());
+                }
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
 
         /*
         try{
@@ -183,10 +222,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
 
     public Location returnLocation(){
-        Location curLocation;
-        curLocation = currentLocation;
-
-        return curLocation;
+        return currentLocation;
     }
 
     //current location callback
