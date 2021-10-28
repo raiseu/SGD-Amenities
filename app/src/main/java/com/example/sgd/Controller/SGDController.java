@@ -453,6 +453,7 @@ public class SGDController {
 
 
     public ArrayList<LTACarpark> fireBase(String carParkName){
+        //hi
         final AtomicBoolean done = new AtomicBoolean(false);
         ltaCarparkList.clear();
         DatabaseReference reff = FirebaseDatabase.getInstance().getReference().child(carParkName);
