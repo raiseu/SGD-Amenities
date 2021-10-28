@@ -4,20 +4,20 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -31,8 +31,6 @@ import com.example.sgd.Entity.DirectionsJSONParser;
 import com.example.sgd.Entity.HDBCarpark;
 import com.example.sgd.Entity.LTACarpark;
 import com.example.sgd.R;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -48,9 +46,15 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.example.sgd.Entity.CustomGrid;
 import com.example.sgd.Entity.CustomList;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
 
@@ -67,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     ArrayList<Amenities> sortedAmenList = new ArrayList<Amenities>();
 
     ArrayList<HDBCarpark> hdbCarparkList = new ArrayList<HDBCarpark>();
+    ArrayList<LTACarpark> ltaCarparkList = new ArrayList<LTACarpark>();
+    List<String> URACarparkList = new ArrayList<String>();
 
     View horizontalBar, bottomSheet, favbottomSheet, listviewbar;
     private RecyclerView horizontalRecycler, gridRecycler, fav_gridRecycler, list_recycler;
@@ -99,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     };
 
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
+
 
 
 
@@ -162,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
         //listview for map icons
         list_recycler = findViewById(R.id.listview);
+        list_recycler.setHasFixedSize(false);
         list_recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         //ArrayList<CustomList> listview = new ArrayList<>();
         listAdapter = new AdapterListView(getApplicationContext(),listview,this);
@@ -326,12 +334,15 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 controller.GetOneMapToken();
             }
             controller.RetrieveTheme(strings[0]);
+
+
             return null;
         }
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
         }
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
@@ -358,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                                 , s
                                 , textViewFirst
                                 , sortedAmenList.get(i).retrieveLatLng()
-                                , s , s, s, s, s
+                                , s , s, s, s, s, s ,s ,s, s
                         ));
                     }
                 }else{
@@ -367,6 +378,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 }
             }
             else{
+
+                //URACarparkList = controller.getURACarparks();
                 carparkList = controller.getCarparkList();
                 mFragment.plotMarkers2(carparkList);
                 Location cLocation = null;
@@ -381,15 +394,11 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                         String km = twoDForm.format((sortedCarparkList.get(i).getDistance())/1000);
                         String textViewFirst = "Distance : " + km +" km";
 
-                        Log.v(debugTag,"Distance " + String.valueOf(sortedCarparkList.get(i).getDistance()));
-
                         String carparkid = sortedCarparkList.get(i).getCarParkID();
                         String agency = sortedCarparkList.get(i).getAgency();
-                        String carParkType = " ", shortTermParking = " ", nightParking = " ", parkingType = " ", freeParking = " ";
+                        String carParkType = "", shortTermParking = "", nightParking = "", parkingType = "", freeParking = "";
+                        String weekdayafter5 = "", weekdaybefore5 = "", saturday = "", sundaypubholiday = "";
 
-                        if(agency.equals("HDB")){
-                            Log.v(debugTag,"Agency " + agency);
-                            String a = " ";
                             hdbCarparkList = controller.getHDBCarparkList();
                             if(hdbCarparkList.size() != 0) {
                                 for(int j=0; j<hdbCarparkList.size(); j++){
@@ -408,21 +417,22 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                                     }
                                     //break;
                                 }
-                            }else{
                             }
-                        }
-                        else if (agency.equals("URA")){
-                            Log.v(debugTag, "URA here " + hdbCarparkList.get(i).getName());
-                        } else if (agency.equals("LTA")) {
-                            Log.v(debugTag, "LTA here " + carparkList.get(i).getCarParkID());
-                            //ArrayList<LTACarpark> ltaCarparkList = new ArrayList<LTACarpark>();
-                            //ltaCarparkList = controller.fireBase(sortedCarparkList.get(i).getDevelopment());
 
-                            //Log.v(debugTag, "qwe" + ltaCarparkList.get(0).getSaturday());
-                            //Log.v(debugTag, "size : " + ltaCarparkList.size());
-                        }
+                            if (agency.equals("LTA")) {
 
-                        Log.v(debugTag, "testingawea" + nightParking);
+                                ltaCarparkList = controller.getLTACarparkList();
+                                for(int j=0; j<ltaCarparkList.size(); j++){
+                                    if(ltaCarparkList.get(j).getName().equals(sortedCarparkList.get(i).getDevelopment())){
+                                        weekdayafter5 = "Week Day After 5 : " + ltaCarparkList.get(j).getWeekDayAfter5();
+                                        weekdaybefore5 = "Week Day Before 5 : " + ltaCarparkList.get(j).getWeekDayBefore5();
+                                        saturday = "Saturday : " + ltaCarparkList.get(j).getSaturday();
+                                        sundaypubholiday = "SundayPH : " + ltaCarparkList.get(j).getSundayPubHoliday();
+                                    }
+                                }
+
+                            }
+
                         listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment()
                                 , String.valueOf(sortedCarparkList.get(i).getAvailableLots())
                                 , textViewFirst
@@ -432,9 +442,13 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                                 , shortTermParking
                                 , freeParking
                                 , nightParking
-                                ));
+                                , weekdayafter5
+                                , weekdaybefore5
+                                , saturday
+                                , sundaypubholiday
+                        ));
+                        listAdapter.notifyDataSetChanged();
                     }
-                    listAdapter.notifyDataSetChanged();
                 }else{
                     Log.v(debugTag, "Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
                     Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(carparkList.size()));
@@ -444,6 +458,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
         }
     }
+
+
+
 
     public String capitalizeString(String inputString){
         String words[]=inputString.split(" ");

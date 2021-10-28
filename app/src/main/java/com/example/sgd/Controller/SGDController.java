@@ -39,8 +39,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -58,7 +60,9 @@ public class SGDController {
     ArrayList<HDBCarpark> hdbCarparkList = new ArrayList<HDBCarpark>();
     ArrayList<LTACarpark> ltaCarparkList = new ArrayList<LTACarpark>();
 
+    ArrayList<String> CarparkNoList = new ArrayList<String>();
 
+    List<String> URACarparks = new ArrayList<String>();
 
     OkHttpClient httpClient = new OkHttpClient();
     String debugTag = "dbug:Controller";
@@ -77,7 +81,6 @@ public class SGDController {
 
     public ArrayList<LTACarpark> getLTACarparkList(){ return ltaCarparkList; }
 
-
     public ArrayList<Amenities> getAmenList() {
         return amenList;
     }
@@ -90,6 +93,12 @@ public class SGDController {
         return hdbCarparkList;
     }
 
+    public ArrayList<String> getURACarparks(){
+        return CarparkNoList;
+    }
+
+
+
     public Location getCurLocation() {
         return curLocation;
     }
@@ -101,6 +110,7 @@ public class SGDController {
     Location curLocation;
 
     //OneMap Retrieve Theme
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void RetrieveTheme(String themeName) {
         amenList = new ArrayList<Amenities>();
         Log.v(debugTag, themeName);
@@ -109,7 +119,26 @@ public class SGDController {
         {
             RetrieveAllCarparks();
             findHDBCarpark();
-            Log.v(debugTag, "Size of carparkList is: " + String.valueOf(carparkList.size()));
+
+            ltaCarparkList = fireBase();
+
+            /*
+            try {
+                CarparkNoList = carparkNo();
+
+                Log.v(debugTag,"size of ura " + CarparkNoList.size());
+                for(int i=0; i< CarparkNoList.size();i++)
+                {
+                    URACarparks.addAll(CrossCheck(CarparkNoList.get(i)));
+
+                    Log.v(debugTag,"size of ura " + URACarparks.size());
+                }
+                Log.v(debugTag, "givesize" + CarparkNoList.size());
+            } catch (Exception e) {
+                Log.v(debugTag, "testaerror" + CarparkNoList.size());
+                e.printStackTrace();
+            }
+            */
         }
         else
         {
@@ -118,7 +147,6 @@ public class SGDController {
                     .url(url)
                     .build();
             httpClient = new OkHttpClient();
-            //Log.v(debugTag ,url);
             //synchronus call
             try (Response response = httpClient.newCall(request).execute()) {
                 if (response.isSuccessful()) {
@@ -274,7 +302,6 @@ public class SGDController {
             if (response.isSuccessful()) {
                 jsonObject = new JSONObject(response.body().string());
                 oneMapToken = jsonObject.getString("access_token");
-                //Log.v(debugTag , oneMapToken);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -364,7 +391,6 @@ public class SGDController {
                 .url(url2)
                 .build();
         httpClient = new OkHttpClient();
-        Log.v(debugTag, "ppp" + url2);
         //synchronus call
         try (Response response = httpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
@@ -383,17 +409,13 @@ public class SGDController {
                             curObject.getString("FREE_PARKING")
                     );
                     hdbCarparkList.add(hdb1);
-                    Log.v(debugTag,"nameeee " + curObject.getString("NAME"));
                 }
-                Log.v(debugTag, "No matching OneMap HDB Carpark");
             }
             else{
-                Log.v(debugTag ,String.valueOf(response.code()));
             }
         } catch(Exception e){
             e.printStackTrace();
         }
-        Log.v(debugTag, "returning null" );
     }
 
     public ArrayList nearestAmen(Location currentLoc, ArrayList<Amenities> amenList){
@@ -427,10 +449,8 @@ public class SGDController {
 
     public ArrayList nearestCarpark(Location currentLoc, ArrayList<Carpark> carparkList)
     {
-
-
         ArrayList<Carpark> sortedCarparkList = new ArrayList<Carpark>();
-        int range = 5000; //1500m //1.5km
+        int range = 1500; //1500m //1.5km
         for (int i = 0; i < carparkList.size(); i++)
         {
             Carpark cp = carparkList.get(i);
@@ -441,8 +461,6 @@ public class SGDController {
             cp.setDistance(distance);
 
             if(cp.getDistance() < range){
-                Log.v(debugTag,  "testiong 123 distance " + String.valueOf(cp.getDistance()));
-                Log.v(debugTag, "agency" + cp.getAgency());
                 sortedCarparkList.add(cp);
             }
         }
@@ -451,40 +469,34 @@ public class SGDController {
         return sortedCarparkList;
     }
 
-
-    public ArrayList<LTACarpark> fireBase(String carParkName){
-        //hi
+    public ArrayList<LTACarpark> fireBase(){
         final AtomicBoolean done = new AtomicBoolean(false);
-        ltaCarparkList.clear();
-        DatabaseReference reff = FirebaseDatabase.getInstance().getReference().child(carParkName);
-
+        DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
         reff.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    String saturdayCharges = (String) dataSnapshot.child("Saturday").getValue();
-                    String sundayPubHolidayCharges = (String) dataSnapshot.child("SundayPubHoliday").getValue();
-                    String weekDayAfter5Charges = (String) dataSnapshot.child("WeekDayAfter5").getValue();
-                    String weekDayBefore5Charges =  (String) dataSnapshot.child("WeekDayBefore5").getValue();
-/*                    Log.v(debugTag, "FIREBASE Value is: " + saturdayCharges);
-                    Log.v(debugTag, "FIREBASE Value is: " + sundayPubHolidayCharges);
-                    Log.v(debugTag, "FIREBASE Value is: " + weekDayAfter5Charges);
-                    Log.v(debugTag, "FIREBASE Value is: " + weekDayBefore5Charges);*/
-
-                    LTACarpark newLTACarkPark = new LTACarpark(saturdayCharges, sundayPubHolidayCharges, weekDayAfter5Charges,weekDayBefore5Charges);
+                ltaCarparkList.clear();
+                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
+                    String ltaCarParkName = (String)snapshot.getKey();
+                    String saturdayCharges = (String) snapshot.child("Saturday").getValue();
+                    String sundayPubHolidayCharges = (String) snapshot.child("SundayPubHoliday").getValue();
+                    String weekDayAfter5Charges = (String) snapshot.child("WeekDayAfter5").getValue();
+                    String weekDayBefore5Charges =  (String) snapshot.child("WeekDayBefore5").getValue();
+                    LTACarpark newLTACarkPark = new LTACarpark(saturdayCharges, sundayPubHolidayCharges, weekDayAfter5Charges,weekDayBefore5Charges, ltaCarParkName);
                     ltaCarparkList.add(newLTACarkPark);
+
                 }
-                done.set(false);
+                done.set(true);
             }
             @Override
             public void onCancelled(DatabaseError error) {
-
             }
         });
         while(!done.get());
-        Log.v(debugTag, "WHAT SIZE IS THIS FIREBASE: "+ltaCarparkList.size());
         return ltaCarparkList;
     }
+
+
 
     public String getToken(String apiKey) throws IOException, Exception {
         URL url = new URL("https://www.ura.gov.sg/uraDataService/insertNewToken.action");
@@ -513,28 +525,60 @@ public class SGDController {
 
 
             JSONObject jobject = new JSONObject(response.toString());
-            String token = "uCda1W6MTffK5eqf8-E6cy2H5apD6e8A+34GyGye9P9f8fEKv2P4De84n+uAYaS7C51yd4+6sBjCe23dwb241DYQde-R1m7-46Kn";//(String) jobject.get("Result");
+            String token = (String) jobject.get("Result");
 
             System.out.println(token);
             return token;
         }
     }
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void CrossCheck(String carparkId) throws IOException, Exception {
+
+    public ArrayList<String> carparkNo() throws IOException, Exception{
         String token = getToken("566492d4-a351-4aee-8560-247d125645ff");
         String readLine1=null;
-        List<String> rates = new ArrayList<String>();
+        String carparkNo;
+        ArrayList<String> listOfCarparks= new ArrayList<String>();
         URL url1 = new URL("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability");
-        HttpURLConnection connection1 = (HttpURLConnection) url1.openConnection();
+                HttpURLConnection connection1 = (HttpURLConnection) url1.openConnection();
         connection1.setRequestMethod("GET");
         connection1.setRequestProperty("AccessKey", "566492d4-a351-4aee-8560-247d125645ff");
         connection1.addRequestProperty("Token", token);
+        try {
+            BufferedReader in1 = new BufferedReader(new InputStreamReader(connection1.getInputStream()));
+            StringBuffer response1 = new StringBuffer();
+            while ((readLine1 = in1 .readLine()) != null) {
+                response1.append(readLine1);
+            } in1.close();
+            JSONObject jobjectOfCarparks = new JSONObject(response1.toString());
 
-        BufferedReader in1 = new BufferedReader(new InputStreamReader(connection1.getInputStream()));
-        StringBuffer response1 = new StringBuffer();
-        while ((readLine1 = in1 .readLine()) != null) {
-            response1.append(readLine1);
-        } in1.close();
+            JSONArray jsonarrOfCarparks =  jobjectOfCarparks.getJSONArray("Result");
+
+            for(int i=0; i<jsonarrOfCarparks.length(); i++) {
+                carparkNo = (String) ((JSONObject)jsonarrOfCarparks.get(i)).get("carparkNo");
+                listOfCarparks.add(carparkNo);
+            }
+            Set<String> listWithoutDuplicates = new LinkedHashSet<String>(listOfCarparks);
+            listOfCarparks.clear();
+            listOfCarparks.addAll(listWithoutDuplicates);
+        } catch(JSONException e)
+        {
+            Log.v(debugTag, "testa" + String.valueOf(e));
+        }
+
+        if(listOfCarparks.size() == 0)
+        {
+            Log.v(debugTag, "testa" + "Nothing is in list of carparks");
+        }
+        for(int i=0; i< listOfCarparks.size();i++)
+        {
+            //Log.v(debugTag,"testa" + listOfCarparks.get(i));
+        }
+        return listOfCarparks;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public List CrossCheck(String carparkId) throws IOException, Exception {
+        String token = getToken("566492d4-a351-4aee-8560-247d125645ff");
+        List<String> rates = new ArrayList<String>();
 
         String readLine2 = null;
         URL url2 = new URL("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Details");
@@ -549,18 +593,12 @@ public class SGDController {
             response2.append(readLine2);
         } in2.close();
 
+
         JSONObject jobject2 = new JSONObject(response2.toString());
 
         JSONArray jsonarr_2 =  jobject2.getJSONArray("Result");
         String carparkNo;
-//        List<String> listOfCarparks= new ArrayList<String>();
-//        for(int i=0; i<jsonarr_2.length(); i++) {
-//        	carparkNo = (String) ((JSONObject)jsonarr_2.get(i)).get("ppCode");
-//        	listOfCarparks.add(carparkNo);
-//        }
-//        Set<String> listWithoutDuplicates = new LinkedHashSet<String>(listOfCarparks);
-//        listOfCarparks.clear();
-//        listOfCarparks.addAll(listWithoutDuplicates);
+
         String ppName = "";
         int carCount = 0, motorcycleCount = 0, heavyVehicleCount = 0;
         List<String[]> list = new ArrayList<>();
@@ -611,6 +649,8 @@ public class SGDController {
                 ppName = (String) jsonobj_2.get("ppCode");
 
             }
+            Log.v(debugTag, "tdtaaa");
+
             rates = CarparkRatesParsing(json_arr, carCount, heavyVehicleCount, motorcycleCount);
             for(int z = 0; z< rates.size(); z++)
             {
@@ -622,10 +662,10 @@ public class SGDController {
         {
             System.out.println("JSONException from getCarparkRatesForCarparkNo" + e);
         }
-        //Pass in the json array that has the rates for the specified carpark number, car count, heavy vehicle count and motorcycle count
+        return rates;
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static List<String> CarparkRatesParsing( JSONArray data, int carCount, int heavyVehicleCount, int motorcycleCount) {
+    public List<String> CarparkRatesParsing(JSONArray data, int carCount, int heavyVehicleCount, int motorcycleCount) {
         String startTime, endTime, weekdayRate, weekdayMin, satdayRate, satdayMin, sundayPH, sundayPHMin, lotCapacity;
         int i, diff;
         String line;
@@ -743,11 +783,14 @@ public class SGDController {
 
         }
         return carparkRates;
-    }
 
+    }
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public static int checkDifferenceInTime(String startTime, String endTime,String weekdayMin)
+    public int checkDifferenceInTime(String startTime, String endTime, String weekdayMin)
     {
+
+        Log.v(debugTag, "tdtaaa");
+
         LocalDate endDate = LocalDate.now(), startDate = LocalDate.now();
         long diffMinutes;
         int count = 0;
@@ -778,33 +821,6 @@ public class SGDController {
             count++;
         }
         return count;
-    }
-    public static void inProgress() throws IOException {
-        URL url = new URL("http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("AccountKey", "CsHIWxk3RCSylL4pkr4Brg==");
-        connection.addRequestProperty("accept", "application/json");
-        int responseCode = connection.getResponseCode(); //GET RESPONSE <200>
-
-
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            System.out.println("Hello");
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()));
-            StringBuffer response = new StringBuffer();
-            String readLine;
-            while ((readLine = in .readLine()) != null) {
-                response.append(readLine);
-            } in .close();
-            // print result
-            System.out.println("JSON String Result " + response.toString());
-            //GetAndPost.POSTRequest(response.toString());
-        } else {
-            System.out.println("GET NOT WORKED");
-        }
-
-        // print result
     }
 
 

@@ -6,16 +6,21 @@ public class LTACarpark {
     public String sundayPubHoliday;
     public String weekDayAfter5;
     public String weekDayBefore5;
+    public String name;
 
     public LTACarpark() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public LTACarpark(String saturday, String sundayPubHoliday, String weekDayAfter5, String weekDayBefore5) {
+    public LTACarpark(String saturday, String sundayPubHoliday, String weekDayAfter5, String weekDayBefore5, String name) {
         this.saturday = saturday;
         this.sundayPubHoliday = sundayPubHoliday;
         this.weekDayAfter5 = weekDayAfter5;
         this.weekDayBefore5 = weekDayBefore5;
+        this.name = name;
+    }
+    public String getName() {
+        return name;
     }
 
     public String getSaturday() {

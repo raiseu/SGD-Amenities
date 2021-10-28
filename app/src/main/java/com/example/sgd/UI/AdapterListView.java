@@ -4,16 +4,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-import com.example.sgd.Entity.CustomGrid;
 import com.example.sgd.R;
 import com.example.sgd.Entity.CustomList;
 
@@ -47,9 +45,22 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
         holder.textViewFour.setText(helper.getTextViewFour());
         holder.textViewFifth.setText(helper.getTextViewFifth());
         holder.textViewSix.setText(helper.getTextViewSix());
+        holder.textViewSeven.setText(helper.getTextViewSeven());
+        holder.textViewEight.setText(helper.getTextViewEight());
+        holder.textViewNine.setText(helper.getTextViewNine());
+        holder.textViewTen.setText(helper.getTextViewTen());
 
         boolean isExpanded = listLocations.get(position).isExpanded();
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+
+        if(holder.textViewSecond.getText().toString().equals("")){
+            holder.textViewFirst.setVisibility(View.GONE);
+            holder.textViewSecond.setVisibility(View.GONE);
+            holder.textViewThird.setVisibility(View.GONE);
+            holder.textViewFour.setVisibility(View.GONE);
+            holder.textViewFifth.setVisibility(View.GONE);
+
+        }
 
     }
 
@@ -58,9 +69,9 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
     public class ViewHold extends RecyclerView.ViewHolder {
 
 
-        ConstraintLayout expandableLayout;
+        RelativeLayout expandableLayout;
         TextView titleTextView, slotsTextView, textViewFirst, textViewSecond, textViewThird,
-                textViewFour, textViewFifth, textViewSix;
+                textViewFour, textViewFifth, textViewSix, textViewSeven, textViewEight, textViewNine, textViewTen;
 
         public ViewHold(@NonNull final View itemView) {
             super(itemView);
@@ -74,6 +85,10 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
             textViewFour = itemView.findViewById(R.id.textView4);
             textViewFifth = itemView.findViewById(R.id.textView5);
             textViewSix = itemView.findViewById(R.id.textView6);
+            textViewSeven = itemView.findViewById(R.id.textView7);
+            textViewEight = itemView.findViewById(R.id.textView8);
+            textViewNine = itemView.findViewById(R.id.textView9);
+            textViewTen = itemView.findViewById(R.id.textView10);
 
             titleTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -82,8 +97,11 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
                     CustomList list = listLocations.get(getAdapterPosition());
                     list.setExpanded(!list.isExpanded());
                     notifyItemChanged(getAdapterPosition());
+
+
                     mListener.getDestination(getAdapterPosition());
                 }
+
             });
         }
     }
