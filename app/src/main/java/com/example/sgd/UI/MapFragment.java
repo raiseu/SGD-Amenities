@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.sgd.Entity.Amenities;
 import com.example.sgd.Entity.Carpark;
+import com.example.sgd.Entity.DataStoreInterface;
 import com.example.sgd.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -233,53 +234,17 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         gMap.moveCamera(CameraUpdateFactory.newLatLngBounds(sgbound, 14)); //move camera
     }
 
-    public void plotMarkers(ArrayList<Amenities> amenList){
+    public void plotMarkers(ArrayList amenList, String iconName, DataStoreInterface datastore){
         gMap.clear();
-        ArrayList<MarkerOptions> markerList = new ArrayList<MarkerOptions>();
-        for(Amenities a : amenList){
-            //Log.v(debugTag, a.getIconName());
-            markerList.add(new MarkerOptions()
-                    .position(a.retrieveLatLng())
-                    .title(a.getName())
-                    .snippet(a.getPostal())
-                    .icon(getMarkerIcon(a.getIconName())));
-
-        }
-        Log.v(debugTag + "mark size", String.valueOf(markerList.size()));
+        Log.v(debugTag, "iconname : " + iconName );
+        ArrayList<MarkerOptions> markerList = datastore.createMarkers(amenList, getMarkerIcon(iconName));
         for(MarkerOptions m : markerList){
             gMap.addMarker(m);
         }
         gMap.setOnMarkerClickListener(this);
     }
-
-    //For Carpark Object
-    public void plotMarkers2(ArrayList<Carpark> carparkList){
+    public void clearMap(){
         gMap.clear();
-        ArrayList<MarkerOptions> markerList2 = new ArrayList<MarkerOptions>();
-        for(Carpark cp : carparkList){
-            //Log.v(debugTag, a.getIconName());
-            markerList2.add(new MarkerOptions()
-                    .position(cp.retrieveLatLng())
-                    .title(cp.getCarParkID())
-                    .icon(getMarkerIcon(cp.getIconName())));
-
-        }
-
-        Log.v(debugTag + "mark size", String.valueOf(markerList2.size()));
-        for(MarkerOptions m : markerList2){
-            gMap.addMarker(m);
-        }
-        gMap.setOnMarkerClickListener(this);
-    }
-
-    public BitmapDescriptor getMarkerIcon(String iconName){
-        try{
-            int id = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
-            return BitmapDescriptorFactory.fromResource(id);
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     @Override
@@ -297,5 +262,14 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         }
         path = gMap.addPolyline(polylineOptions);
 
+    }
+    public BitmapDescriptor getMarkerIcon(String iconName){
+        try{
+            int id = getResources().getIdentifier(iconName,"drawable", getActivity().getPackageName());
+            return BitmapDescriptorFactory.fromResource(id);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

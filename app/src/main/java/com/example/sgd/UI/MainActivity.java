@@ -8,7 +8,6 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +31,7 @@ import com.example.sgd.Entity.DirectionsJSONParser;
 import com.example.sgd.Entity.HDBCarpark;
 import com.example.sgd.Entity.LTACarpark;
 import com.example.sgd.R;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -43,19 +43,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.example.sgd.Entity.CustomGrid;
 import com.example.sgd.Entity.CustomList;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
 
@@ -82,11 +75,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     ToggleButton grid_toggleFavbtn, fav_toggleFavbtn, fav_grid_bar_SingleToggle;
     private BottomSheetBehavior mBottomSheetBehavior, favmBottomSheetBehavior, listviewSheetBehavior;
     Boolean checktoggle, check;
-
+    BitmapDescriptor icon;
     ArrayList<CustomList> listview = new ArrayList<>();
-
-    //To check which API to use
-    private boolean checkAPI = false;
 
     String[] web = {
             "HDB Branches", "Eldercare Services", "SAFRA Centres", "Hawker Centres", "SportSG Sport Facilities", "Designated Smoking Areas", "Gyms@SG", "Retail Pharmacy", "Community Clubs", "Supermarkets", "Parks@SG", "Libraries", "Car Parks"
@@ -94,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     int[] imageId = {
             R.drawable.ic_hdb_branches_50, R.drawable.ic_eldercare_50, R.drawable.ic_hsgb_safra_50, R.drawable.ic_hawkercentre_50,
             R.drawable.ic_ssc_sports_facilities_50, R.drawable.ic_dsa_50, R.drawable.ic_exercisefacilities_50, R.drawable.ic_registered_pharmacy_50,
-            R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50, R.drawable.ic_carparks_50
+            R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50, R.drawable.ic_carpark_50
     };
 
     String[] title = {
@@ -320,14 +310,15 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
 
     public class AsyncJobz extends AsyncTask<String, Integer, Void> {
+        String iconName;
         @Override
         protected Void doInBackground(String... strings) {
             if(controller.getToken() == null){
                 controller.GetOneMapToken();
             }
 
-
             controller.RetrieveTheme(strings[0]);
+            iconName = "ic_"+strings[0]+"_25";
             return null;
         }
         @Override
@@ -341,131 +332,33 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             Log.v(debugTag + "amen size", String.valueOf(controller.getAmenList().size()));
             //plot markers
 
-            listview.clear();
             listAdapter.notifyDataSetChanged();
-            //
-            if(checkAPI == false){
-                mFragment.plotMarkers(controller.getAmenList());
-                amenList = controller.getAmenList();
-                Location cLocation = mFragment.returnLocation();
-                if(cLocation != null) {
-                    sortedAmenList = controller.nearestAmen(cLocation, amenList);
-                    //Log.v(debugTag, "not null   Size of SORTED amenlist is: " + String.valueOf(sortedAmenList.size()));
-                    String s = " ";
-                    for(int i=0; i<sortedAmenList.size(); i++) {
-                        DecimalFormat twoDForm = new DecimalFormat("#.##");
-                        String km = twoDForm.format((sortedAmenList.get(i).getDistance())/1000);
-                        String textViewFirst = "Distance : " + km +" km";
-                        listview.add(new CustomList(sortedAmenList.get(i).getName()
-                                , s
-                                , textViewFirst
-                                , sortedAmenList.get(i).retrieveLatLng()
-                                , s , s, s, s, s, s ,s ,s, s
-                        ));
-                    }
-                }else{
-                    Log.v(debugTag, "Size of SORTED amen list is : " + String.valueOf(sortedAmenList.size()));
-                    Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(sortedAmenList.size()));
+
+
+
+            mFragment.plotMarkers(controller.getAmenList(), iconName, controller.getDatastore());
+            amenList = controller.getAmenList();
+            Location cLocation = mFragment.returnLocation();
+
+
+            if(cLocation != null) {
+                sortedAmenList = controller.nearestAmen(cLocation, amenList);
+                ArrayList<CustomList> temp = controller.getDatastore().updateListView(sortedAmenList, controller);
+                for(CustomList cl : temp){
+                    listview.add(cl);
                 }
-                if(listview.size() == 0){
-                    Toast.makeText(MainActivity.this, "No Nearby Amenities found!", Toast.LENGTH_LONG).show();
-                }
+
+            }else{
+                Log.v(debugTag, "Size of SORTED amen list is : " + String.valueOf(sortedAmenList.size()));
+                Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(sortedAmenList.size()));
             }
-            else{
-                //URACarparkList = controller.getURACarparks();
-                carparkList = controller.getAmenList();
-                mFragment.plotMarkers2(carparkList);
-                Location cLocation = mFragment.returnLocation();
-                if(cLocation != null) {
-                    sortedCarparkList = controller.nearestAmen(cLocation, carparkList);
-                    //Log.v(debugTag, "not null   Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
-                    String s = "";
-                    for(int i=0; i<sortedCarparkList.size(); i++)
-                    {
-                        DecimalFormat twoDForm = new DecimalFormat("#.##");
-                        String km = twoDForm.format((sortedCarparkList.get(i).getDistance())/1000);
-                        String textViewFirst = "Distance : " + km +" km";
-
-                        String carparkid = sortedCarparkList.get(i).getCarParkID();
-                        String agency = sortedCarparkList.get(i).getAgency();
-                        String carParkType = "a", shortTermParking = "a", nightParking = "a", parkingType = "a", freeParking = "a";
-                        String weekdayafter5 = "a", weekdaybefore5 = "a", saturday = "a", sundaypubholiday = "a";
-
-                            hdbCarparkList = controller.getHDBCarparkList();
-                            if(hdbCarparkList.size() != 0) {
-                                for(int j=0; j<hdbCarparkList.size(); j++){
-                                    if(hdbCarparkList.get(j).getName().equals(carparkid)){
-                                        carParkType = capitalizeString(hdbCarparkList.get(j).getCarParkType());
-                                        shortTermParking = capitalizeString(hdbCarparkList.get(j).getShortTermParking());
-                                        shortTermParking = shortTermParking + " Short Term Parking";
-                                        nightParking = hdbCarparkList.get(j).getNightParking();
-                                        if(nightParking.equals("YES")){
-                                            nightParking = "Has Night Parking";
-                                        }else{
-                                            nightParking =  capitalizeString(nightParking) + "Night Parking";
-                                        }
-                                        parkingType = capitalizeString(hdbCarparkList.get(j).getParkingSystemType());
-                                        freeParking = hdbCarparkList.get(j).getFreeParking();
-                                        if (freeParking.equals("NO")) {
-                                            freeParking = "No Free Parking";
-                                        }else{
-                                            freeParking = capitalizeString(hdbCarparkList.get(j).getFreeParking()) + "Free Parking";
-                                        }
-                                    }
-                                }
-                            }
-                            if (agency.equals("LTA")) {
-                                ltaCarparkList = controller.getLTACarparkList();
-                                for(int j=0; j<ltaCarparkList.size(); j++){
-                                    if(ltaCarparkList.get(j).getName().equals(sortedCarparkList.get(i).getDevelopment())){
-                                        weekdayafter5 = "Week Day After 5 : " + ltaCarparkList.get(j).getWeekDayAfter5();
-                                        weekdaybefore5 = "Week Day Before 5 : " + ltaCarparkList.get(j).getWeekDayBefore5();
-                                        saturday = "Saturday : " + ltaCarparkList.get(j).getSaturday();
-                                        sundaypubholiday = "SundayPH : " + ltaCarparkList.get(j).getSundayPubHoliday();
-                                    }
-                                }
-
-                            }
-
-                        listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment()
-                                , String.valueOf(sortedCarparkList.get(i).getAvailableLots())
-                                , textViewFirst
-                                , sortedCarparkList.get(i).retrieveLatLng()
-                                , carParkType
-                                , parkingType
-                                , shortTermParking
-                                , freeParking
-                                , nightParking
-                                , weekdayafter5
-                                , weekdaybefore5
-                                , saturday
-                                , sundaypubholiday
-                        ));
-                        listAdapter.notifyDataSetChanged();
-                    }
-                }else{
-                    Log.v(debugTag, "Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
-                    Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(carparkList.size()));
-                }
-                if(listview.size() == 0){
-                    Toast.makeText(MainActivity.this, "No Nearby Car parks found!", Toast.LENGTH_LONG).show();
-                }
+            if(listview.size() == 0){
+                Toast.makeText(MainActivity.this, "No Nearby Amenities found!", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    public String capitalizeString(String inputString){
-        String words[]=inputString.split(" ");
-        String capitalizeStr="";
-        for(String word:words){
-            // Capitalize first letter
-            String firstLetter=word.substring(0,1);
-            // Get remaining letter
-            String remainingLetters=word.substring(1);
-            capitalizeStr+=firstLetter.toUpperCase()+remainingLetters.toLowerCase()+" ";
-        }
-        return capitalizeStr;
-    }
+
 
     @Override
     public void CallInsert(int position, CustomGrid helper){
@@ -510,7 +403,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         TextView titleTextView = (TextView) findViewById(R.id.titleTopLeft);
         TextView slotsTextView = (TextView) findViewById(R.id.titleTopRight);
         AsyncJobz as = new AsyncJobz();
-        checkAPI = false;
         switch (helper.getTitle()) {
             case "Supermarkets":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
@@ -603,7 +495,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 titleTextView.setText("Nearest Carparks");
                 slotsTextView.setText("Available Lots");
                 callc();
-                checkAPI = true;
                 break;
         }
     }
@@ -618,6 +509,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     @Override
     public void onBackPressed() {
         listview.clear();
+        mFragment.clearMap();
         listAdapter.notifyDataSetChanged();
         if(listviewbar.getVisibility() == View.VISIBLE){
             listviewbar.setVisibility(View.GONE);
@@ -653,13 +545,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
         // Sensor enabled
         String sensor = "sensor=false";
-        String mode;
-        if(checkAPI == false){
-            mode = "mode=walking";
-        }
-        else{
-            mode = "mode=driving";
-        }
+        String mode = controller.getDatastore().getMode();
 
         // Building the parameters to the web service
         String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" + mode;
@@ -813,5 +699,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             mFragment.plotPolyLine(lineOptions);
         }
     }
+
 
 }

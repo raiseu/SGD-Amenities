@@ -3,16 +3,21 @@ package com.example.sgd.Entity;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.util.Log;
+import android.widget.ListView;
 
 import androidx.core.view.ScaleGestureDetectorCompat;
+import androidx.fragment.app.Fragment;
 
 import com.example.sgd.Controller.SGDController;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -208,4 +213,43 @@ public class Amenities implements Comparable<Amenities>, DataStoreInterface{
 
         return sorted;
     }
+
+    @Override
+    public String getMode() {
+        return "walking";
+    }
+
+    @Override
+    public ArrayList<MarkerOptions> createMarkers(ArrayList list, BitmapDescriptor icon){
+        ArrayList<MarkerOptions> markerList = new ArrayList<MarkerOptions>();
+        ArrayList<Amenities> amenList = (ArrayList<Amenities>) list;
+        for(Amenities a : amenList){
+            markerList.add(new MarkerOptions()
+                    .position(a.retrieveLatLng())
+                    .title(a.getName())
+                    .snippet(a.getPostal())
+                    .icon(icon));
+        }
+        return markerList;
+    }
+
+    @Override
+    public ArrayList<CustomList> updateListView(ArrayList list, SGDController instance) {
+        String s = " ";
+        ArrayList<Amenities> sortedAmenList = (ArrayList<Amenities>) list;
+        ArrayList<CustomList> listviewItems = new ArrayList<CustomList>();
+        for(int i=0; i<sortedAmenList.size(); i++) {
+            DecimalFormat twoDForm = new DecimalFormat("#.##");
+            String km = twoDForm.format((sortedAmenList.get(i).getDistance())/1000);
+            String textViewFirst = "Distance : " + km +" km";
+            listviewItems.add(new CustomList(sortedAmenList.get(i).getName()
+                    , s
+                    , textViewFirst
+                    , sortedAmenList.get(i).retrieveLatLng()
+                    , s , s, s, s, s, s ,s ,s, s
+            ));
+        }
+        return listviewItems;
+    }
+
 }

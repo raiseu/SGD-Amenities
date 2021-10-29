@@ -114,9 +114,13 @@ public class SGDController {
         this.ltaCarparkList = ltaCarparkList;
     }
 
+    public DataStoreInterface getDatastore(){
+        return datastore;
+    }
+
     //===============DataStore Factory Start===================================
     public void RetrieveTheme(String themeName) {
-        amenList = new ArrayList<Amenities>();
+        amenList = new ArrayList();
         //Log.v(debugTag, themeName);
         datastore = DataStoreFactory.getDatastore(themeName);
         amenList = datastore.retrieveData(this,themeName);
@@ -125,6 +129,8 @@ public class SGDController {
         ArrayList sortedAmenList = datastore.sortByDistance(currentLoc, amenList);
         return sortedAmenList;
     }
+
+
     //===============DataStore Factory End===================================
 
     //OneMap Retrieve Token
