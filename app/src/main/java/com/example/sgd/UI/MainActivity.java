@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
@@ -324,6 +325,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             if(controller.getToken() == null){
                 controller.GetOneMapToken();
             }
+
+
             controller.RetrieveTheme(strings[0]);
             return null;
         }
@@ -348,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 if(cLocation != null) {
                     sortedAmenList = controller.nearestAmen(cLocation, amenList);
                     //Log.v(debugTag, "not null   Size of SORTED amenlist is: " + String.valueOf(sortedAmenList.size()));
-                    String s = "";
+                    String s = " ";
                     for(int i=0; i<sortedAmenList.size(); i++) {
                         DecimalFormat twoDForm = new DecimalFormat("#.##");
                         String km = twoDForm.format((sortedAmenList.get(i).getDistance())/1000);
@@ -363,6 +366,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 }else{
                     Log.v(debugTag, "Size of SORTED amen list is : " + String.valueOf(sortedAmenList.size()));
                     Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(sortedAmenList.size()));
+                }
+                if(listview.size() == 0){
+                    Toast.makeText(MainActivity.this, "No Nearby Amenities found!", Toast.LENGTH_LONG).show();
                 }
             }
             else{
@@ -382,8 +388,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
                         String carparkid = sortedCarparkList.get(i).getCarParkID();
                         String agency = sortedCarparkList.get(i).getAgency();
-                        String carParkType = " ", shortTermParking = " ", nightParking = " ", parkingType = " ", freeParking = " ";
-                        String weekdayafter5 = " ", weekdaybefore5 = " ", saturday = " ", sundaypubholiday = " ";
+                        String carParkType = "a", shortTermParking = "a", nightParking = "a", parkingType = "a", freeParking = "a";
+                        String weekdayafter5 = "a", weekdaybefore5 = "a", saturday = "a", sundaypubholiday = "a";
 
                             hdbCarparkList = controller.getHDBCarparkList();
                             if(hdbCarparkList.size() != 0) {
@@ -441,9 +447,10 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                     Log.v(debugTag, "Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
                     Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(carparkList.size()));
                 }
-
+                if(listview.size() == 0){
+                    Toast.makeText(MainActivity.this, "No Nearby Car parks found!", Toast.LENGTH_LONG).show();
+                }
             }
-
         }
     }
 
@@ -610,6 +617,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
     @Override
     public void onBackPressed() {
+        listview.clear();
+        listAdapter.notifyDataSetChanged();
         if(listviewbar.getVisibility() == View.VISIBLE){
             listviewbar.setVisibility(View.GONE);
             horizontalBar.setVisibility(View.VISIBLE);

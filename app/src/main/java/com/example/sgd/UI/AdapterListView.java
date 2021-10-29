@@ -54,7 +54,7 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
         boolean isExpanded = listLocations.get(position).isExpanded();
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
 
-        if(holder.textViewSecond.getText().toString().equals(" ")){
+        if(holder.textViewSecond.getText().toString().equals("a")){
             //holder.textViewSecond.setVisibility(View.GONE);
             holder.textViewThird.setVisibility(View.GONE);
             holder.textViewFour.setVisibility(View.GONE);
@@ -63,7 +63,19 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
             holder.textViewSecond.setText("Rates : ");
         }
 
-        if(holder.textViewSeven.getText().toString().equals(" ")){
+        if(holder.textViewSeven.getText().toString().equals("a")){
+            holder.textViewSeven.setVisibility(View.GONE);
+            holder.textViewEight.setVisibility(View.GONE);
+            holder.textViewNine.setVisibility(View.GONE);
+            holder.textViewTen.setVisibility(View.GONE);
+        }
+
+        if(holder.slotsTextView.getText().toString().equals(" ")){
+            holder.textViewSecond.setVisibility(View.GONE);
+            holder.textViewThird.setVisibility(View.GONE);
+            holder.textViewFour.setVisibility(View.GONE);
+            holder.textViewFifth.setVisibility(View.GONE);
+            holder.textViewSix.setVisibility(View.GONE);
             holder.textViewSeven.setVisibility(View.GONE);
             holder.textViewEight.setVisibility(View.GONE);
             holder.textViewNine.setVisibility(View.GONE);
