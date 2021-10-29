@@ -378,7 +378,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 }
             }
             else{
-
                 //URACarparkList = controller.getURACarparks();
                 carparkList = controller.getCarparkList();
                 mFragment.plotMarkers2(carparkList);
@@ -396,8 +395,8 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
                         String carparkid = sortedCarparkList.get(i).getCarParkID();
                         String agency = sortedCarparkList.get(i).getAgency();
-                        String carParkType = "", shortTermParking = "", nightParking = "", parkingType = "", freeParking = "";
-                        String weekdayafter5 = "", weekdaybefore5 = "", saturday = "", sundaypubholiday = "";
+                        String carParkType = " ", shortTermParking = " ", nightParking = " ", parkingType = " ", freeParking = " ";
+                        String weekdayafter5 = " ", weekdaybefore5 = " ", saturday = " ", sundaypubholiday = " ";
 
                             hdbCarparkList = controller.getHDBCarparkList();
                             if(hdbCarparkList.size() != 0) {
@@ -413,14 +412,16 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                                             nightParking =  capitalizeString(nightParking) + "Night Parking";
                                         }
                                         parkingType = capitalizeString(hdbCarparkList.get(j).getParkingSystemType());
-                                        freeParking = capitalizeString(hdbCarparkList.get(j).getFreeParking());
+                                        freeParking = hdbCarparkList.get(j).getFreeParking();
+                                        if (freeParking.equals("NO")) {
+                                            freeParking = "No Free Parking";
+                                        }else{
+                                            freeParking = capitalizeString(hdbCarparkList.get(j).getFreeParking()) + "Free Parking";
+                                        }
                                     }
-                                    //break;
                                 }
                             }
-
                             if (agency.equals("LTA")) {
-
                                 ltaCarparkList = controller.getLTACarparkList();
                                 for(int j=0; j<ltaCarparkList.size(); j++){
                                     if(ltaCarparkList.get(j).getName().equals(sortedCarparkList.get(i).getDevelopment())){

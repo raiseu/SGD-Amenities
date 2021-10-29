@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -53,13 +54,20 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
         boolean isExpanded = listLocations.get(position).isExpanded();
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
 
-        if(holder.textViewSecond.getText().toString().equals("")){
-            holder.textViewFirst.setVisibility(View.GONE);
-            holder.textViewSecond.setVisibility(View.GONE);
+        if(holder.textViewSecond.getText().toString().equals(" ")){
+            //holder.textViewSecond.setVisibility(View.GONE);
             holder.textViewThird.setVisibility(View.GONE);
             holder.textViewFour.setVisibility(View.GONE);
             holder.textViewFifth.setVisibility(View.GONE);
+            holder.textViewSix.setVisibility(View.GONE);
+            holder.textViewSecond.setText("Rates : ");
+        }
 
+        if(holder.textViewSeven.getText().toString().equals(" ")){
+            holder.textViewSeven.setVisibility(View.GONE);
+            holder.textViewEight.setVisibility(View.GONE);
+            holder.textViewNine.setVisibility(View.GONE);
+            holder.textViewTen.setVisibility(View.GONE);
         }
 
     }
@@ -69,7 +77,7 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
     public class ViewHold extends RecyclerView.ViewHolder {
 
 
-        RelativeLayout expandableLayout;
+        LinearLayout expandableLayout;
         TextView titleTextView, slotsTextView, textViewFirst, textViewSecond, textViewThird,
                 textViewFour, textViewFifth, textViewSix, textViewSeven, textViewEight, textViewNine, textViewTen;
 

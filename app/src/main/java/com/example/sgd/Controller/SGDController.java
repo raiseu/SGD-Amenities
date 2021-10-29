@@ -108,9 +108,7 @@ public class SGDController {
     }
 
     Location curLocation;
-
     //OneMap Retrieve Theme
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void RetrieveTheme(String themeName) {
         amenList = new ArrayList<Amenities>();
         Log.v(debugTag, themeName);
@@ -121,7 +119,6 @@ public class SGDController {
             findHDBCarpark();
 
             ltaCarparkList = fireBase();
-
             /*
             try {
                 CarparkNoList = carparkNo();
