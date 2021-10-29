@@ -107,8 +107,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
 
 
-
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,14 +117,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView, mFragment).commit();
-        controller = new SGDController();
-
-
-
-
-
-
-
+        controller = SGDController.getInstance();
 
         //horizontal bar
         horizontalRecycler = findViewById(R.id.my_recycler);
@@ -334,8 +325,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 controller.GetOneMapToken();
             }
             controller.RetrieveTheme(strings[0]);
-
-
             return null;
         }
         @Override
@@ -355,11 +344,10 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             if(checkAPI == false){
                 mFragment.plotMarkers(controller.getAmenList());
                 amenList = controller.getAmenList();
-                Location cLocation = null;
-                cLocation = mFragment.returnLocation();
+                Location cLocation = mFragment.returnLocation();
                 if(cLocation != null) {
                     sortedAmenList = controller.nearestAmen(cLocation, amenList);
-                    Log.v(debugTag, "not null   Size of SORTED amenlist is: " + String.valueOf(sortedAmenList.size()));
+                    //Log.v(debugTag, "not null   Size of SORTED amenlist is: " + String.valueOf(sortedAmenList.size()));
                     String s = "";
                     for(int i=0; i<sortedAmenList.size(); i++) {
                         DecimalFormat twoDForm = new DecimalFormat("#.##");
@@ -379,13 +367,12 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             }
             else{
                 //URACarparkList = controller.getURACarparks();
-                carparkList = controller.getCarparkList();
+                carparkList = controller.getAmenList();
                 mFragment.plotMarkers2(carparkList);
-                Location cLocation = null;
-                cLocation = mFragment.returnLocation();
+                Location cLocation = mFragment.returnLocation();
                 if(cLocation != null) {
-                    sortedCarparkList = controller.nearestCarpark(cLocation, carparkList);
-                    Log.v(debugTag, "not null   Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
+                    sortedCarparkList = controller.nearestAmen(cLocation, carparkList);
+                    //Log.v(debugTag, "not null   Size of SORTED carparkList is: " + String.valueOf(sortedCarparkList.size()));
                     String s = "";
                     for(int i=0; i<sortedCarparkList.size(); i++)
                     {
@@ -459,9 +446,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
         }
     }
-
-
-
 
     public String capitalizeString(String inputString){
         String words[]=inputString.split(" ");
@@ -726,8 +710,6 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         return data;
     }
 
-
-
     private class DownloadTask extends AsyncTask<String,Integer, String> {
 
         @Override
@@ -822,8 +804,5 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             mFragment.plotPolyLine(lineOptions);
         }
     }
-
-
-
 
 }

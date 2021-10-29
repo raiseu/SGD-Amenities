@@ -1,11 +1,27 @@
 package com.example.sgd.Entity;
 
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.util.Log;
 
+import androidx.core.view.ScaleGestureDetectorCompat;
+
+import com.example.sgd.Controller.SGDController;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 
-public class Amenities implements Comparable<Amenities>{
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+import okhttp3.OkHttp;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class Amenities implements Comparable<Amenities>, DataStoreInterface{
     private String name;
     private String description;
     private String postal;
@@ -13,7 +29,10 @@ public class Amenities implements Comparable<Amenities>{
     private String iconName;
     private float distance;
 
-    //supermarket Constructor
+    String debugTag = "Dbug Amenities : ";
+
+    public Amenities(){}
+
     public Amenities(String name, String description, String postal, String latlng) {
         this.name = name;
         this.description = description;
@@ -70,9 +89,123 @@ public class Amenities implements Comparable<Amenities>{
         this.iconName = iconName;
     }
 
+    @Override
+    public ArrayList retrieveData(SGDController instance, String themeName){
+        ArrayList amenList = new ArrayList();
+        String url = "https://developers.onemap.sg/privateapi/themesvc/retrieveTheme?queryName=" + themeName + "&token=" + instance.getOMToken();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        OkHttpClient httpClient = new OkHttpClient();
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                JSONObject jsonObject = new JSONObject(response.body().string());
+                JSONArray jsonArray = jsonObject.getJSONArray("SrchResults");
+                JSONObject curObject;
+                for (int i = 1; i < jsonArray.length(); i++) {
+                    //Log.v(debugTag ,String.valueOf(i));
+                    curObject = (JSONObject) jsonArray.get(i);
+                    Amenities newAmen;
+                    switch (themeName){
+                        case"supermarkets":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    curObject.getString("DESCRIPTION"),
+                                    curObject.getString("POSTCODE"),
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName + "_25");
+                            amenList.add(newAmen);
+                            break;
+                        case"hdb_branches":
+                        case"hawkercentre":
+                        case"hsgb_safra":
+                        case"communityclubs":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    null,
+                                    curObject.getString("ADDRESSPOSTALCODE"),
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName + "_25");
+                            amenList.add(newAmen);
+                            break;
+                        case"relaxsg":
+                        case"libraries":
+                        case"registered_pharmacy":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    curObject.getString("DESCRIPTION"),
+                                    curObject.getString("ADDRESSPOSTALCODE"),
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName + "_25");
+                            amenList.add(newAmen);
+                            break;
+                        case"eldercare":
+                        case"exercisefacilities":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    "NULL",
+                                    curObject.getString("ADDRESSPOSTALCODE"),
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName + "_25");
+                            amenList.add(newAmen);
+                            break;
+                        case"ssc_sports_facilities":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    curObject.getString("DESCRIPTION"),
+                                    curObject.getString("POSTAL_CODE"),
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName + "_25");
+                            amenList.add(newAmen);
+                            break;
+                        case"dsa":
+                            newAmen = new Amenities(
+                                    curObject.getString("NAME"),
+                                    null,
+                                    "NULL",
+                                    curObject.getString("LatLng"));
+                            newAmen.setIconName("ic_" + themeName + "_25");
+                            amenList.add(newAmen);
+                            break;
+                    }
+                }
+            }
+            else{
+                Log.v(debugTag ,String.valueOf(response.code()));
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return amenList;
+    }
+
+    @Override
+    public ArrayList sortByDistance(Location currentLoc, ArrayList list) {
+        ArrayList sorted = new ArrayList();
+        ArrayList<Amenities> amenList = (ArrayList<Amenities>) list;
+        int range = 1500;
+        for (int i = 0; i < amenList.size(); i++)
+        {
+            Amenities amen =  amenList.get(i);
+            Location amenLoc = new Location("");
 
 
+            String[] coordList = amenList.get(i).getLatlng().split(",");
+            double latitude = Double.parseDouble(coordList[0]);
+            double longitude = Double.parseDouble(coordList[1]);
 
+            amenLoc.setLatitude(latitude);
+            amenLoc.setLongitude(longitude);
+            float distance = currentLoc.distanceTo(amenLoc);
+            amen.setDistance(distance);
 
+            if(amen.getDistance() < range){
+                sorted.add(amen);
+            }
+        }
+        Collections.sort(sorted);
 
+        return sorted;
+    }
 }

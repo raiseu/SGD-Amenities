@@ -17,12 +17,9 @@ import android.view.ViewGroup;
 import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
-import com.example.sgd.Controller.SGDController;
 import com.example.sgd.Entity.Amenities;
 import com.example.sgd.Entity.Carpark;
 import com.example.sgd.R;
@@ -87,7 +84,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
 
         LocationManager lm = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
         boolean gps_enabled = false;
-        //boolean network_enabled = false;
 
         try{
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -126,18 +122,6 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 return false;
             }
         });
-
-
-        /*
-        try{
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        }catch(Exception e){
-            Log.v(debugTag, e.toString());
-        }
-         */
-
-
-
 
         //boolean finalNetwork_enabled = network_enabled;
         boolean finalGps_enabled = gps_enabled;

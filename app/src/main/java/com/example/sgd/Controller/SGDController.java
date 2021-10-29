@@ -8,6 +8,8 @@ import androidx.annotation.RequiresApi;
 
 import com.example.sgd.Entity.Amenities;
 import com.example.sgd.Entity.Carpark;
+import com.example.sgd.Entity.DataStoreFactory;
+import com.example.sgd.Entity.DataStoreInterface;
 import com.example.sgd.Entity.HDBCarpark;
 import com.example.sgd.Entity.LTACarpark;
 import com.google.firebase.database.DataSnapshot;
@@ -47,32 +49,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class SGDController {
-    URL url;
     String token;
     BufferedReader br;
     Request request;
     String oneMapToken;
-            //= "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjc4ODUsInVzZXJfaWQiOjc4ODUsImVtYWlsIjoiYzIwMDE3NEBlLm50dS5lZHUuc2ciLCJmb3JldmVyIjpmYWxzZSwiaXNzIjoiaHR0cDpcL1wvb20yLmRmZS5vbmVtYXAuc2dcL2FwaVwvdjJcL3VzZXJcL3Nlc3Npb24iLCJpYXQiOjE2MzI4MTYwODMsImV4cCI6MTYzMzI0ODA4MywibmJmIjoxNjMyODE2MDgzLCJqdGkiOiJlMTliN2IwYmEwNDU1NDI4MWU0MTkzM2ExMDc2MjBkNyJ9.L2mJA3LrTc2kj-MPRTPvIKTRKo33ZKvEqjNQXC5V9ic";
     JSONObject jsonObject;
     JSONArray jsonArray;
-    ArrayList<Amenities> amenList = new ArrayList<Amenities>();
+    ArrayList amenList = new ArrayList();
     ArrayList<Carpark> carparkList = new ArrayList<Carpark>();
     ArrayList<HDBCarpark> hdbCarparkList = new ArrayList<HDBCarpark>();
     ArrayList<LTACarpark> ltaCarparkList = new ArrayList<LTACarpark>();
-
     ArrayList<String> CarparkNoList = new ArrayList<String>();
-
     List<String> URACarparks = new ArrayList<String>();
-
+    Location curLocation;
     OkHttpClient httpClient = new OkHttpClient();
     String debugTag = "dbug:Controller";
+    DataStoreInterface datastore;
 
-//    public SGDController(String themeName){
-//        AsyncJob aj = new AsyncJob();
-//        aj.execute(themeName);
-//    }
+    //instance creation
+    private static SGDController instance = new SGDController();
 
-    public SGDController(){
+    //Singleton Constructor
+    private SGDController(){}
+
+    public static SGDController getInstance(){
+        return instance;
     }
 
     public String getToken(){
@@ -81,12 +82,8 @@ public class SGDController {
 
     public ArrayList<LTACarpark> getLTACarparkList(){ return ltaCarparkList; }
 
-    public ArrayList<Amenities> getAmenList() {
+    public ArrayList getAmenList() {
         return amenList;
-    }
-
-    public ArrayList<Carpark> getCarparkList(){
-        return carparkList;
     }
 
     public ArrayList<HDBCarpark> getHDBCarparkList(){
@@ -97,8 +94,6 @@ public class SGDController {
         return CarparkNoList;
     }
 
-
-
     public Location getCurLocation() {
         return curLocation;
     }
@@ -107,180 +102,31 @@ public class SGDController {
         this.curLocation = curLocation;
     }
 
-    Location curLocation;
-    //OneMap Retrieve Theme
+    public String getOMToken(){
+        return oneMapToken;
+    }
+
+    public void setHdbCarparkList(ArrayList<HDBCarpark> hdbCarparkList){
+        this.hdbCarparkList = hdbCarparkList;
+    }
+
+    public void setLtaCarparkList(ArrayList<LTACarpark> ltaCarparkList){
+        this.ltaCarparkList = ltaCarparkList;
+    }
+
+    //===============DataStore Factory Start===================================
     public void RetrieveTheme(String themeName) {
         amenList = new ArrayList<Amenities>();
-        Log.v(debugTag, themeName);
-
-        if (themeName.equals("carpark"))
-        {
-            RetrieveAllCarparks();
-            findHDBCarpark();
-
-            ltaCarparkList = fireBase();
-            /*
-            try {
-                CarparkNoList = carparkNo();
-
-                Log.v(debugTag,"size of ura " + CarparkNoList.size());
-                for(int i=0; i< CarparkNoList.size();i++)
-                {
-                    URACarparks.addAll(CrossCheck(CarparkNoList.get(i)));
-
-                    Log.v(debugTag,"size of ura " + URACarparks.size());
-                }
-                Log.v(debugTag, "givesize" + CarparkNoList.size());
-            } catch (Exception e) {
-                Log.v(debugTag, "testaerror" + CarparkNoList.size());
-                e.printStackTrace();
-            }
-            */
-        }
-        else
-        {
-            String url = "https://developers.onemap.sg/privateapi/themesvc/retrieveTheme?queryName=" + themeName + "&token=" + oneMapToken;
-            request = new Request.Builder()
-                    .url(url)
-                    .build();
-            httpClient = new OkHttpClient();
-            //synchronus call
-            try (Response response = httpClient.newCall(request).execute()) {
-                if (response.isSuccessful()) {
-                    jsonObject = new JSONObject(response.body().string());
-                    jsonArray = jsonObject.getJSONArray("SrchResults");
-                    JSONObject curObject;
-                    for (int i = 1; i < jsonArray.length(); i++) {
-                        //Log.v(debugTag ,String.valueOf(i));
-                        curObject = (JSONObject) jsonArray.get(i);
-                        Amenities newAmen;
-                        switch (themeName){
-                            case"supermarkets":
-                                newAmen = new Amenities(
-                                        curObject.getString("NAME"),
-                                        curObject.getString("DESCRIPTION"),
-                                        curObject.getString("POSTCODE"),
-                                        curObject.getString("LatLng"));
-                                newAmen.setIconName("ic_" + themeName + "_25");
-                                amenList.add(newAmen);
-                                break;
-                            case"hdb_branches":
-                            case"hawkercentre":
-                            case"hsgb_safra":
-                            case"communityclubs":
-                                newAmen = new Amenities(
-                                        curObject.getString("NAME"),
-                                        null,
-                                        curObject.getString("ADDRESSPOSTALCODE"),
-                                        curObject.getString("LatLng"));
-                                newAmen.setIconName("ic_" + themeName + "_25");
-                                amenList.add(newAmen);
-                                break;
-                            case"relaxsg":
-                            case"libraries":
-                            case"registered_pharmacy":
-                                newAmen = new Amenities(
-                                        curObject.getString("NAME"),
-                                        curObject.getString("DESCRIPTION"),
-                                        curObject.getString("ADDRESSPOSTALCODE"),
-                                        curObject.getString("LatLng"));
-                                newAmen.setIconName("ic_" + themeName + "_25");
-                                amenList.add(newAmen);
-                                break;
-                            case"eldercare":
-                            case"exercisefacilities":
-                                newAmen = new Amenities(
-                                        curObject.getString("NAME"),
-                                        "NULL",
-                                        curObject.getString("ADDRESSPOSTALCODE"),
-                                        curObject.getString("LatLng"));
-                                newAmen.setIconName("ic_" + themeName + "_25");
-                                amenList.add(newAmen);
-                                break;
-                            case"ssc_sports_facilities":
-                                newAmen = new Amenities(
-                                        curObject.getString("NAME"),
-                                        curObject.getString("DESCRIPTION"),
-                                        curObject.getString("POSTAL_CODE"),
-                                        curObject.getString("LatLng"));
-                                newAmen.setIconName("ic_" + themeName + "_25");
-                                amenList.add(newAmen);
-                                break;
-                            case"dsa":
-                                newAmen = new Amenities(
-                                        curObject.getString("NAME"),
-                                        null,
-                                        "NULL",
-                                        curObject.getString("LatLng"));
-                                newAmen.setIconName("ic_" + themeName + "_25");
-                                amenList.add(newAmen);
-                                break;
-                        }
-                    }
-                }
-                else{
-                    Log.v(debugTag ,String.valueOf(response.code()));
-                }
-            } catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-/*
-        //asynchronus call
-        httpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if(response.isSuccessful()){//The method of the callback is executed in the child thread.
-                    try {
-                        jsonObject = new JSONObject(response.body().string());
-                        jsonArray = jsonObject.getJSONArray("SrchResults");
-                        JSONObject curObject;
-                        for(int i = 1 ; i < jsonArray.length(); i++){
-                            Log.v(debugTag , String.valueOf(i));
-                            curObject = (JSONObject) jsonArray.get(i);
-                            Amenities newAmen = new Amenities(
-                                    curObject.getString("NAME"),
-                                    curObject.getString("DESCRIPTION"),
-                                    curObject.getString("POSTCODE"),
-                                    curObject.getString("LatLng"));
-                            amenList.add(newAmen);
-                        }
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        });*/
-
+        //Log.v(debugTag, themeName);
+        datastore = DataStoreFactory.getDatastore(themeName);
+        amenList = datastore.retrieveData(this,themeName);
     }
-
-
-    /*
-    private class GetToken extends AsyncTask<String, Integer, Void>{
-        @Override
-        protected Void doInBackground(String... strings) {
-            GetOneMapToken();
-            return null;
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
+    public ArrayList nearestAmen(Location currentLoc, ArrayList amenList){
+        ArrayList sortedAmenList = datastore.sortByDistance(currentLoc, amenList);
+        return sortedAmenList;
     }
-*/
+    //===============DataStore Factory End===================================
+
     //OneMap Retrieve Token
     public void GetOneMapToken(){
         // form parameters
@@ -304,196 +150,7 @@ public class SGDController {
             e.printStackTrace();
         }
 
-        /*
-        //asynchronus call
-        httpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-            }
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if(response.isSuccessful()){//The method of the callback is executed in the child thread.
-                    Log.d("kwwl","response.body().string()=="+response.body().string());
-                    try {
-                        jsonObject = new JSONObject(response.body().string());
-                        oneMapToken = jsonObject.getString("access_token");
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-
-                }
-            }
-        });*/
-
     }
-
-
-    public void RetrieveAllCarparks()
-    {
-        carparkList.clear();
-        String url = "http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip=";
-        String dataMallKey = "amWBvG8eT4CtFzLY2QvHYw==";
-        for (int skip = 0; skip<=2000; skip+=500) {
-            Request request = new Request.Builder()
-                    .url(url + skip)
-                    .addHeader("AccountKey", dataMallKey)
-                    .addHeader("accept", "application/json")
-                    .build();
-            OkHttpClient httpClient = new OkHttpClient();
-            try (Response response = httpClient.newCall(request).execute()) {
-                if (response.isSuccessful()) {
-                    //JSONParser parser = new JSONParser();
-                    jsonObject = new JSONObject(response.body().string());
-                    //JSONObject jsonObject = (JSONObject) parser.parse(response.body().string());
-                    JSONArray jsonArray = (JSONArray) jsonObject.get("value");
-
-                    //System.out.println("Total number of results: " + jsonArray.length());
-
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject obj_1 = (JSONObject) jsonArray.get(i);
-                        String carParkID = (String) obj_1.get("CarParkID");
-                        String area = (String) obj_1.get("Area");
-                        String development = (String) obj_1.get("Development");
-                        String location = (String) obj_1.get("Location");
-                        int availableLots = (int) obj_1.get("AvailableLots");
-                        String lotType = (String) obj_1.get("LotType");
-                        String agency = (String) obj_1.get("Agency");
-
-
-                        //Split location: String into latitude: double and longitude: double
-                        String[] coordList = location.split(" ");
-                        double latitude = Double.parseDouble(coordList[0]);
-                        double longitude = Double.parseDouble(coordList[1]);
-                        Carpark cp = new Carpark(carParkID, area, development, location, latitude, longitude, availableLots, lotType, agency);
-                        cp.setIconName("ic_" + "carparks" + "_25");
-                        carparkList.add(cp);
-                    }
-                }
-
-                //System.out.println("Size of carparkList: " + carparkList.size());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
-
-    public void findHDBCarpark()
-    {
-        //retrieving HDB Carparks
-        String url2 = "https://developers.onemap.sg/privateapi/themesvc/retrieveTheme?queryName=hdb_car_park_information&token=" + oneMapToken;
-        request = new Request.Builder()
-                .url(url2)
-                .build();
-        httpClient = new OkHttpClient();
-        //synchronus call
-        try (Response response = httpClient.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                jsonObject = new JSONObject(response.body().string());
-                jsonArray = jsonObject.getJSONArray("SrchResults");
-                JSONObject curObject;
-                for (int i = 1; i < jsonArray.length(); i++) {
-                    curObject = (JSONObject) jsonArray.get(i);
-                    HDBCarpark hdb1 = new HDBCarpark(
-                            curObject.getString("NAME"),
-                            curObject.getString("DESCRIPTION"),
-                            curObject.getString("CAR_PARK_TYPE"),
-                            curObject.getString("SHORT_TERM_PARKING"),
-                            curObject.getString("NIGHT_PARKING"),
-                            curObject.getString("TYPE_OF_PARKING_SYSTEM"),
-                            curObject.getString("FREE_PARKING")
-                    );
-                    hdbCarparkList.add(hdb1);
-                }
-            }
-            else{
-            }
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public ArrayList nearestAmen(Location currentLoc, ArrayList<Amenities> amenList){
-        ArrayList<Amenities> sortedAmenList = new ArrayList<Amenities>();
-        int range = 1500;
-        sortedAmenList.clear();
-
-        for (int i = 0; i < amenList.size(); i++)
-        {
-            Amenities amen = amenList.get(i);
-            Location amenLoc = new Location("");
-
-
-            String[] coordList = amenList.get(i).getLatlng().split(",");
-            double latitude = Double.parseDouble(coordList[0]);
-            double longitude = Double.parseDouble(coordList[1]);
-
-            amenLoc.setLatitude(latitude);
-            amenLoc.setLongitude(longitude);
-            float distance = currentLoc.distanceTo(amenLoc);
-            amen.setDistance(distance);
-
-            if(amen.getDistance() < range){
-                sortedAmenList.add(amen);
-            }
-        }
-        Collections.sort(sortedAmenList);
-
-        return sortedAmenList;
-    }
-
-    public ArrayList nearestCarpark(Location currentLoc, ArrayList<Carpark> carparkList)
-    {
-        ArrayList<Carpark> sortedCarparkList = new ArrayList<Carpark>();
-        int range = 1500; //1500m //1.5km
-        for (int i = 0; i < carparkList.size(); i++)
-        {
-            Carpark cp = carparkList.get(i);
-            Location cpLoc = new Location("");
-            cpLoc.setLatitude(cp.getLatitude());
-            cpLoc.setLongitude(cp.getLongitude());
-            float distance = currentLoc.distanceTo(cpLoc);
-            cp.setDistance(distance);
-
-            if(cp.getDistance() < range){
-                sortedCarparkList.add(cp);
-            }
-        }
-        Collections.sort(sortedCarparkList);
-
-        return sortedCarparkList;
-    }
-
-    public ArrayList<LTACarpark> fireBase(){
-        final AtomicBoolean done = new AtomicBoolean(false);
-        DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
-        reff.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                ltaCarparkList.clear();
-                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
-                    String ltaCarParkName = (String)snapshot.getKey();
-                    String saturdayCharges = (String) snapshot.child("Saturday").getValue();
-                    String sundayPubHolidayCharges = (String) snapshot.child("SundayPubHoliday").getValue();
-                    String weekDayAfter5Charges = (String) snapshot.child("WeekDayAfter5").getValue();
-                    String weekDayBefore5Charges =  (String) snapshot.child("WeekDayBefore5").getValue();
-                    LTACarpark newLTACarkPark = new LTACarpark(saturdayCharges, sundayPubHolidayCharges, weekDayAfter5Charges,weekDayBefore5Charges, ltaCarParkName);
-                    ltaCarparkList.add(newLTACarkPark);
-
-                }
-                done.set(true);
-            }
-            @Override
-            public void onCancelled(DatabaseError error) {
-            }
-        });
-        while(!done.get());
-        return ltaCarparkList;
-    }
-
-
 
     public String getToken(String apiKey) throws IOException, Exception {
         URL url = new URL("https://www.ura.gov.sg/uraDataService/insertNewToken.action");
@@ -503,7 +160,6 @@ public class SGDController {
         connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36");
         int responseCode = connection.getResponseCode(); //GET RESPONSE <200>
 
-
         if(responseCode != 200) {
             throw new RuntimeException("HTTP RESPONSE CODE: " +responseCode);
         }
@@ -511,19 +167,11 @@ public class SGDController {
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuffer response = new StringBuffer();
             String readLine = null;
-
             while ((readLine = in .readLine()) != null) {
                 response.append(readLine);
             } in.close();
-
-            // print result
-            //System.out.println("JSON String Result " + response);
-
-
-
             JSONObject jobject = new JSONObject(response.toString());
             String token = (String) jobject.get("Result");
-
             System.out.println(token);
             return token;
         }
