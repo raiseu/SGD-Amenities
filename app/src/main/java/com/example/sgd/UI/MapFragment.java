@@ -70,10 +70,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         if(context instanceof FragmentActivity){
             frs = (FragmentActivity) context;
         }
-
-
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

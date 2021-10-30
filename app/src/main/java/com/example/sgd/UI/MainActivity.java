@@ -5,12 +5,18 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -18,6 +24,7 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -43,7 +50,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -87,16 +96,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
             R.drawable.ic_communityclubs_50, R.drawable.ic_supermarkets_50, R.drawable.ic_relaxsg_50, R.drawable.ic_libraries_50, R.drawable.ic_carpark_50
     };
 
-    String[] title = {
-            "Carpark1", "Carpark2", "Carpark3", "Carpark4",
-    };
-
-    String[] slots = {
-            "150/300", "160/300", "200/300", "300/300", "150/300", "160/300", "200/300", "300/300", "200/300", "300/300"
-    };
-
     ArrayList<CustomGrid> fav_grid = new ArrayList<>();
 
+    ImageButton info_btn;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -157,12 +159,20 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         listAdapter = new AdapterListView(getApplicationContext(),listview,this);
         list_recycler.setAdapter(listAdapter);
 
-        /*
-        Log.d("my size",String.valueOf(sortedCarparkList.size()));
-        for(int i=0; i<sortedCarparkList.size(); i++)
-        {
-            listview.add(new CustomList(sortedCarparkList.get(i).getDevelopment(), String.valueOf(sortedCarparkList.get(i).getAvailableLots())));
-        }*/
+        info_btn = findViewById(R.id.info_button);
+        info_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View popupView = LayoutInflater.from(MainActivity.this).inflate(R.layout.info_dialog, null);
+                AlertDialog.Builder dialogBuilder;
+                dialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                dialogBuilder.setView(popupView);
+                AlertDialog dialog = dialogBuilder.create();
+                dialog.show();
+            }
+        });
+
+
 
         listviewbar = findViewById(R.id.listview_bar);
         horizontalBar = findViewById(R.id.horizontalbar);
@@ -282,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                     editor.commit();
                     grid_toggleFavbtn.setChecked(false);
                     fav_toggleFavbtn.setChecked(false);
-                    gridAdapter.notifyItemRangeChanged(0, 15);
+                    gridAdapter.notifyItemRangeChanged(0, 30);
                     bottomSheet.setVisibility(View.VISIBLE);
                     favbottomSheet.setVisibility(View.GONE);
                     mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -325,36 +335,48 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
         }
-        @RequiresApi(api = Build.VERSION_CODES.O)
+
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             Log.v(debugTag + "amen size", String.valueOf(controller.getAmenList().size()));
             //plot markers
-
-            listAdapter.notifyDataSetChanged();
-
-
-
             mFragment.plotMarkers(controller.getAmenList(), iconName, controller.getDatastore());
-            amenList = controller.getAmenList();
-            Location cLocation = mFragment.returnLocation();
 
+            final Handler handler = new Handler();
+            Runnable run = new Runnable() {
+                @Override
+                public void run() {
+                    TextView textViewDate = (TextView) findViewById(R.id.date);
+                    Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat df = new SimpleDateFormat("MMM dd yyyy h.mm a");
+                    String dateString = df.format(calendar.getTime());
+                    textViewDate.setText("Updated as of " + dateString);
 
-            if(cLocation != null) {
-                sortedAmenList = controller.nearestAmen(cLocation, amenList);
-                ArrayList<CustomList> temp = controller.getDatastore().updateListView(sortedAmenList, controller);
-                for(CustomList cl : temp){
-                    listview.add(cl);
+                    Log.v(debugTag, "run ");
+                    listAdapter.notifyDataSetChanged();
+                    amenList = controller.getAmenList();
+                    Log.v(debugTag, "Size of  amen list is : " + String.valueOf(amenList.size()));
+                    Location cLocation = mFragment.returnLocation();
+
+                    if(cLocation != null) {
+                        sortedAmenList = controller.nearestAmen(cLocation, amenList);
+                        ArrayList<CustomList> temp = controller.getDatastore().updateListView(sortedAmenList, controller);
+                        for(CustomList cl : temp){
+                            listview.add(cl);
+                        }
+
+                    }else{
+                        Log.v(debugTag, "Size of SORTED amen list is : " + String.valueOf(sortedAmenList.size()));
+                        Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(sortedAmenList.size()));
+                    }
+                    if(listview.size() == 0){
+                        Toast.makeText(MainActivity.this, "No Nearby Amenities found!", Toast.LENGTH_LONG).show();
+                    }
+                    handler.postDelayed(this, 2500000);
                 }
-
-            }else{
-                Log.v(debugTag, "Size of SORTED amen list is : " + String.valueOf(sortedAmenList.size()));
-                Log.v(debugTag, "LOCATION IS NULL " + String.valueOf(sortedAmenList.size()));
-            }
-            if(listview.size() == 0){
-                Toast.makeText(MainActivity.this, "No Nearby Amenities found!", Toast.LENGTH_LONG).show();
-            }
+            };
+            handler.post(run);
         }
     }
 
@@ -400,12 +422,15 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
 
     @Override
     public void CallLocations(int position, CustomGrid helper) {
+        TextView textViewDate = (TextView) findViewById(R.id.date);
         TextView titleTextView = (TextView) findViewById(R.id.titleTopLeft);
         TextView slotsTextView = (TextView) findViewById(R.id.titleTopRight);
         AsyncJobz as = new AsyncJobz();
+        info_btn.setVisibility(View.GONE);
         switch (helper.getTitle()) {
             case "Supermarkets":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("supermarkets");
                 titleTextView.setText("Nearest Supermarkets");
                 slotsTextView.setText(" ");
@@ -413,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "HDB Branches":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
-                //as.execute("hdb_branches");
+                textViewDate.setText(" ");
                 titleTextView.setText("Nearest HDB Branches");
                 slotsTextView.setText(" ");
                 as.execute("hdb_branches");
@@ -421,6 +446,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Hawker Centres":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("hawkercentre");
                 titleTextView.setText("Nearest Hawker Centres");
                 slotsTextView.setText(" ");
@@ -428,6 +454,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Gyms@SG":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("exercisefacilities");
                 titleTextView.setText("Nearest Gyms@SG");
                 slotsTextView.setText(" ");
@@ -435,6 +462,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "SAFRA Centres":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("hsgb_safra");
                 titleTextView.setText("Nearest SAFRA Centres");
                 slotsTextView.setText(" ");
@@ -442,6 +470,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Community Clubs":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("communityclubs");
                 titleTextView.setText("Nearest Community Clubs");
                 slotsTextView.setText(" ");
@@ -449,6 +478,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Parks@SG":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("relaxsg");
                 titleTextView.setText("Nearest Parks@SG");
                 slotsTextView.setText(" ");
@@ -456,6 +486,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Libraries":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("libraries");
                 titleTextView.setText("Nearest Libraries");
                 slotsTextView.setText(" ");
@@ -463,6 +494,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Retail Pharmacy":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("registered_pharmacy");
                 titleTextView.setText("Nearest Registered Pharmacy");
                 slotsTextView.setText(" ");
@@ -470,6 +502,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Eldercare Services":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("eldercare");
                 titleTextView.setText("Nearest Eldercare Services");
                 slotsTextView.setText(" ");
@@ -477,6 +510,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "SportSG Sport Facilities":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("ssc_sports_facilities");
                 titleTextView.setText("Nearest SportSG Sport Facilities");
                 slotsTextView.setText(" ");
@@ -484,6 +518,7 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Designated Smoking Areas":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("dsa");
                 titleTextView.setText("Nearest Designated Smoking Areas");
                 slotsTextView.setText(" ");
@@ -491,9 +526,11 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
                 break;
             case "Car Parks":
                 Log.d("call", "custom grid call location " + position + helper.getTitle());
+                textViewDate.setText(" ");
                 as.execute("carpark");
                 titleTextView.setText("Nearest Carparks");
                 slotsTextView.setText("Available Lots");
+                info_btn.setVisibility(View.VISIBLE);
                 callc();
                 break;
         }

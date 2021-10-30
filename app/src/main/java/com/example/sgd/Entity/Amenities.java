@@ -246,7 +246,7 @@ public class Amenities implements Comparable<Amenities>, DataStoreInterface{
                     , s
                     , textViewFirst
                     , sortedAmenList.get(i).retrieveLatLng()
-                    , s , s, s, s, s, s ,s ,s, s
+                    , s , s, s, s, s, s ,s ,s, s, s, s
             ));
         }
         return listviewItems;

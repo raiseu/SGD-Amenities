@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="30dp">
+
+    <TextView
+        android:id="@+id/textView111"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Short-Term Parking Charges"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+
+    <TextView
+        android:id="@+id/textView112"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Short-Term Parking Charges For Motor Cars"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textView113"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Outside Central Area :  $0.60 per half-hour"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/textView114"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Within Central Area :\n         $1.20 per half hour\n
+        (7:00am to 5:00pm, Monday to Saturday) \n
+        \n         $0.60 per half hour  (Other hours)"
+        android:textColor="@color/black" />
+
+
+    <TextView
+        android:id="@+id/textView101"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Short-Term Parking Charges for Motorcycles"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textView1021"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Whole Day (7.00am to 10.30pm) : $0.65 per lot"
+        android:textColor="@color/black"
+        />
+
+    <TextView
+        android:id="@+id/textView1121"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Whole Day (7.00am to 10.30pm) : $0.65 per lot
+        \n\n Whole night (10:30pm to 7:00am on the following day) : $0.65 per lot"
+        android:textColor="@color/black"
+        />
+
+    <TextView
+        android:id="@+id/textView101223"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Short-Term Parking Charges for Heavy Vehicles"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textView11221"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="At all times : $1.20 per half-hour"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/textView101231223"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Parking Charges for Loading/ Unloading "
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textViewasd11221"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="At all times : Free - First 15 minutes\n
+                      $2 - first half hour\n
+                      $4 - subsequent half hour"
+        android:textColor="@color/black" />
+
+</LinearLayout>

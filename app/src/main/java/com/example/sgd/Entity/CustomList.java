@@ -17,9 +17,12 @@ public class CustomList {
     private String textViewEight;
     private String textViewNine;
     private String textViewTen;
+    private String textViewEleven;
+    private String textViewTwelve;
 
     public CustomList(String title, String slots, String textViewFirst, LatLng latlng,
-                      String textViewSecond, String textViewThird, String textViewFour, String textViewFifth, String textViewSix,String textViewSeven, String textViewEight, String textViewNine, String textViewTen) {
+                      String textViewSecond, String textViewThird, String textViewFour, String textViewFifth, String textViewSix,String textViewSeven, String textViewEight,
+                      String textViewNine, String textViewTen, String textViewEleven, String textViewTwelve) {
         this.title = title;
         this.expanded = false;
         this.slots = slots;
@@ -34,6 +37,8 @@ public class CustomList {
         this.textViewEight = textViewEight;
         this.textViewNine = textViewNine;
         this.textViewTen = textViewTen;
+        this.textViewEleven = textViewEleven;
+        this.textViewTwelve = textViewTwelve;
     }
 
     public String getTextViewFirst() {
@@ -65,6 +70,12 @@ public class CustomList {
     }
     public String getTextViewTen() {
         return textViewTen;
+    }
+    public String getTextViewEleven() {
+        return textViewEleven;
+    }
+    public String getTextViewTwelve() {
+        return textViewTwelve;
     }
 
 

@@ -21,8 +21,7 @@
             android:background="@drawable/roundcorner"
             android:clickable="true"
             android:contentDescription="ATM"
-            android:src="@drawable/ic_supermarket_35"
-            ></ImageButton>
+            android:src="@drawable/ic_supermarket_35"></ImageButton>
 
         <TextView
             android:autoSizeTextType="uniform"

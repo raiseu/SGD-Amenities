@@ -1,6 +1,7 @@
 package com.example.sgd.Entity;
 
 import android.location.Location;
+import android.util.Log;
 
 import com.example.sgd.Controller.SGDController;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -181,7 +182,8 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
 
         }
         instance.setHdbCarparkList(findHDBCarpark(instance));
-        instance.setLtaCarparkList(fireBase());
+        instance.setLtaCarparkList(ltaFireBase());
+        instance.setUraCarparkList(uraFireBase());
         return carParkList;
     }
 
@@ -189,7 +191,7 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
     public ArrayList sortByDistance(Location currentLoc, ArrayList list) {
         ArrayList sorted = new ArrayList();
         ArrayList<Carpark> carparkList = (ArrayList<Carpark>) list;
-        int range = 1500; //1500m //1.5km
+        int range = 5000; //1500m //1.5km
         for (int i = 0; i < carparkList.size(); i++)
         {
             Carpark cp = carparkList.get(i);
@@ -243,10 +245,43 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
         }
         return hdbCarparkList;
     }
-    public ArrayList<LTACarpark> fireBase(){
+
+    public ArrayList<URACarpark> uraFireBase(){
+        ArrayList<URACarpark> uraCarparkList = new ArrayList<URACarpark>();
+        final AtomicBoolean done = new AtomicBoolean(false);
+        DatabaseReference reff = FirebaseDatabase.getInstance().getReference().child("URA");
+        reff.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                uraCarparkList.clear();
+                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
+                    String carparkNo = (String)snapshot.getKey();
+                    String maxRateForCar = (String) snapshot.child("MaxRateForCar").getValue();
+                    String maxRateForHeavyVehicle = (String) snapshot.child("MaxRateForHeavyVehicle").getValue();
+                    String maxRateForMotorcycle = (String) snapshot.child("MaxRateForMotorcycle").getValue();
+                    String weekdayAndSatForCar = (String) snapshot.child("WeekdayAndSatForCar").getValue();
+                    String weekdayAndSatForHeavyVehicle =  (String) snapshot.child("WeekdayAndSatForHeavyVehicle").getValue();
+                    String weekdayAndSatForMotorcycle = (String) snapshot.child("WeekdayAndSatForMotorcycle").getValue();
+                    URACarpark newURACarPark = new URACarpark(carparkNo, maxRateForCar, maxRateForHeavyVehicle,maxRateForMotorcycle, weekdayAndSatForCar,
+                            weekdayAndSatForHeavyVehicle,weekdayAndSatForMotorcycle);
+                    uraCarparkList.add(newURACarPark);
+
+                }
+                done.set(true);
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+            }
+        });
+        while(!done.get());
+        return uraCarparkList;
+    }
+
+
+    public ArrayList<LTACarpark> ltaFireBase(){
         ArrayList<LTACarpark> ltaCarparkList = new ArrayList<LTACarpark>();
         final AtomicBoolean done = new AtomicBoolean(false);
-        DatabaseReference reff = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference reff = FirebaseDatabase.getInstance().getReference().child("LTA");
         reff.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -270,6 +305,10 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
         while(!done.get());
         return ltaCarparkList;
     }
+
+
+
+
 
     @Override
     public String getMode() {
@@ -303,8 +342,11 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
             String agency = sortedCarparkList.get(i).getAgency();
             String carParkType = "a", shortTermParking = "a", nightParking = "a", parkingType = "a", freeParking = "a";
             String weekdayafter5 = "a", weekdaybefore5 = "a", saturday = "a", sundaypubholiday = "a";
+            String eleven = "a", twelve = "a";
 
             ArrayList<HDBCarpark> hdbCarparkList = instance.getHDBCarparkList();
+            ArrayList<URACarpark> uraCarparkList = instance.getURACarparkList();
+
             if (hdbCarparkList.size() != 0) {
                 for (int j = 0; j < hdbCarparkList.size(); j++) {
                     if (hdbCarparkList.get(j).getName().equals(carparkid)) {
@@ -326,6 +368,18 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                         }
                     }
                 }
+                for (int j = 0; j < uraCarparkList.size(); j++) {
+                    if (uraCarparkList.get(j).getCarparkNo().equals(carparkid)) {
+                        Log.v("ura", "ura carparks found " + uraCarparkList.get(j).getCarparkNo() + "ura = " + carparkid);
+                        weekdayafter5 = "Max rates for Car : \n" + uraCarparkList.get(j).getMaxRateForCar();
+                        weekdaybefore5 = "Max rates for Heavy Vehicle : \n" + uraCarparkList.get(j).getMaxRateForHeavyVehicle();
+                        saturday = "Max rates for Motorcycle : \n" + uraCarparkList.get(j).getMaxRateForMotorcycle();
+                        sundaypubholiday = "Weekday and Saturday rates for Car : \n" + uraCarparkList.get(j).getWeekdayAndSatForCar();
+                        eleven = "Weekday and Saturday for Heavy Vehicles : \n" + uraCarparkList.get(j).getWeekdayAndSatForHeavyVehicle();
+                        twelve = "Weekday and Saturday for Motorcycle : \n" + uraCarparkList.get(j).getWeekdayAndSatForMotorcycle();
+                    }
+                }
+
             }
             if (agency.equals("LTA")) {
                 ArrayList<LTACarpark>ltaCarparkList = instance.getLTACarparkList();
@@ -352,6 +406,8 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                     , weekdaybefore5
                     , saturday
                     , sundaypubholiday
+                    , eleven
+                    , twelve
             ));
 
         }
