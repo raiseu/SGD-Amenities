@@ -80,8 +80,6 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
             holder.textViewEight.setVisibility(View.GONE);
             holder.textViewNine.setVisibility(View.GONE);
             holder.textViewTen.setVisibility(View.GONE);
-            holder.textViewEleven.setVisibility(View.GONE);
-            holder.textViewTwelve.setVisibility(View.GONE);
             holder.expandableLayout.setVisibility(View.GONE);
             //holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         }
