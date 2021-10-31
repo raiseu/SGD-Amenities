@@ -174,12 +174,10 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                         carParkList.add(cp);
                     }
                 }
-
                 //System.out.println("Size of carparkList: " + carparkList.size());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
         instance.setHdbCarparkList(findHDBCarpark(instance));
         instance.setLtaCarparkList(ltaFireBase());
@@ -333,12 +331,18 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
         String s = "";
         ArrayList<Carpark> sortedCarparkList = (ArrayList<Carpark>) list;
         ArrayList<CustomList> listviewItems = new ArrayList<CustomList>();
+        Log.v("a", " size of sorted carpa" + sortedCarparkList.size());
+
         for (int i = 0; i < sortedCarparkList.size(); i++) {
+
+
             DecimalFormat twoDForm = new DecimalFormat("#.##");
             String km = twoDForm.format((sortedCarparkList.get(i).getDistance()) / 1000);
             String textViewFirst = "Distance : " + km + " km";
 
             String carparkid = sortedCarparkList.get(i).getCarParkID();
+            Log.v("allcarparklist", " " + carparkid + "   name : " + sortedCarparkList.get(i).getDevelopment() + sortedCarparkList.get(i).getArea()) ;
+
             String agency = sortedCarparkList.get(i).getAgency();
             String carParkType = "a", shortTermParking = "a", nightParking = "a", parkingType = "a", freeParking = "a";
             String weekdayafter5 = "a", weekdaybefore5 = "a", saturday = "a", sundaypubholiday = "a";
@@ -346,6 +350,8 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
 
             ArrayList<HDBCarpark> hdbCarparkList = instance.getHDBCarparkList();
             ArrayList<URACarpark> uraCarparkList = instance.getURACarparkList();
+
+
 
             if (hdbCarparkList.size() != 0) {
                 for (int j = 0; j < hdbCarparkList.size(); j++) {
@@ -368,21 +374,31 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                         }
                     }
                 }
-                for (int j = 0; j < uraCarparkList.size(); j++) {
-                    if (uraCarparkList.get(j).getCarparkNo().equals(carparkid)) {
-                        Log.v("ura", "ura carparks found " + uraCarparkList.get(j).getCarparkNo() + "ura = " + carparkid);
-                        weekdayafter5 = "Max rates for Car : \n" + uraCarparkList.get(j).getMaxRateForCar();
-                        weekdaybefore5 = "Max rates for Heavy Vehicle : \n" + uraCarparkList.get(j).getMaxRateForHeavyVehicle();
-                        saturday = "Max rates for Motorcycle : \n" + uraCarparkList.get(j).getMaxRateForMotorcycle();
-                        sundaypubholiday = "Weekday and Saturday rates for Car : \n" + uraCarparkList.get(j).getWeekdayAndSatForCar();
-                        eleven = "Weekday and Saturday for Heavy Vehicles : \n" + uraCarparkList.get(j).getWeekdayAndSatForHeavyVehicle();
-                        twelve = "Weekday and Saturday for Motorcycle : \n" + uraCarparkList.get(j).getWeekdayAndSatForMotorcycle();
-                    }
-                }
-
             }
+
+            Log.v("urasize", "size" + uraCarparkList.size());
+            int count = 0;
+            for (int w = 0; w < uraCarparkList.size(); w++) {
+                Log.v("uracarparknumber", "number " + uraCarparkList.get(w).getCarparkNo());
+
+                if (uraCarparkList.get(w).getCarparkNo().equals(carparkid)) {
+                    Log.v("ura", "ura carparks found " + uraCarparkList.get(w).getCarparkNo() + "ura = " + carparkid);
+                    Log.v("ura", sortedCarparkList.get(i).getDevelopment());
+
+                    weekdayafter5 = "Max rates for Car : \n" + uraCarparkList.get(w).getMaxRateForCar();
+                    weekdaybefore5 = "Max rates for Heavy Vehicle : \n" + uraCarparkList.get(w).getMaxRateForHeavyVehicle();
+                    saturday = "Max rates for Motorcycle : \n" + uraCarparkList.get(w).getMaxRateForMotorcycle();
+                    sundaypubholiday = "Weekday and Saturday rates for Car : \n" + uraCarparkList.get(w).getWeekdayAndSatForCar();
+                    eleven = "Weekday and Saturday for Heavy Vehicles : \n" + uraCarparkList.get(w).getWeekdayAndSatForHeavyVehicle();
+                    twelve = "Weekday and Saturday for Motorcycle : \n" + uraCarparkList.get(w).getWeekdayAndSatForMotorcycle();
+                    count++;
+                }
+            }
+
+            Log.v("uracount", "count" + count);
+
             if (agency.equals("LTA")) {
-                ArrayList<LTACarpark>ltaCarparkList = instance.getLTACarparkList();
+                ArrayList<LTACarpark> ltaCarparkList = instance.getLTACarparkList();
                 for (int j = 0; j < ltaCarparkList.size(); j++) {
                     if (ltaCarparkList.get(j).getName().equals(sortedCarparkList.get(i).getDevelopment())) {
                         weekdayafter5 = "Week Day After 5 : " + ltaCarparkList.get(j).getWeekDayAfter5();

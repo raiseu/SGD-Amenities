@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
@@ -101,17 +103,22 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                     Geocoder geocoder = new Geocoder(mainActivity);
                     try {
                         addressList = geocoder.getFromLocationName(location, 1);
+                        if ( addressList.size() != 0 && addressList.get(0) != null) {
+                            Address address = addressList.get(0);
+                            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                            mainActivity.onBackPressed();
+                            gMap.addMarker(new MarkerOptions().position(latLng).title(location));
+                            gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+
+                            currentLocation.setLongitude(address.getLongitude());
+                            currentLocation.setLatitude(address.getLatitude());
+                        }
+                        else{
+                            Toast.makeText(getActivity().getApplicationContext(), "Please try again!", Toast.LENGTH_SHORT).show();
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    Address address = addressList.get(0);
-                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                    gMap.addMarker(new MarkerOptions().position(latLng).title(location));
-                    gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-
-
-                    currentLocation.setLongitude(address.getLongitude());
-                    currentLocation.setLatitude(address.getLatitude());
                 }
                 return false;
             }

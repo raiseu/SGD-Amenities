@@ -84,12 +84,20 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
             holder.textViewTen.setVisibility(View.GONE);
             holder.textViewEleven.setVisibility(View.GONE);
             holder.textViewTwelve.setVisibility(View.GONE);
+            holder.expandableLayout.setVisibility(View.GONE);
+            //holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         }
 
         if(holder.textViewEleven.getText().toString().equals("a")){
             holder.textViewEleven.setVisibility(View.GONE);
             holder.textViewTwelve.setVisibility(View.GONE);
         }
+
+        /*
+        if(holder.textViewEleven.getVisibility()){
+            holder.textViewEleven.setVisibility(View.GONE);
+            holder.textViewTwelve.setVisibility(View.GONE);
+        }*/
 
     }
 
