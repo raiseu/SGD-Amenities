@@ -16,6 +16,10 @@ import com.google.firebase.database.ValueEventListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -134,11 +138,12 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
     public String getIconName() { return iconName; }
 
     @Override
-    public ArrayList retrieveData(SGDController instance, String themeName) {
+    public ArrayList retrieveData(SGDController instance, String themeName){
         ArrayList carParkList = new ArrayList();
         String url = "http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip=";
         String dataMallKey = "amWBvG8eT4CtFzLY2QvHYw==";
-        for (int skip = 0; skip<=2000; skip+=500) {
+
+        for (int skip = 0; skip<=5000; skip+=500) {
             Request request = new Request.Builder()
                     .url(url + skip)
                     .addHeader("AccountKey", dataMallKey)
@@ -151,7 +156,6 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                     JSONObject jsonObject = new JSONObject(response.body().string());
                     //JSONObject jsonObject = (JSONObject) parser.parse(response.body().string());
                     JSONArray jsonArray = (JSONArray) jsonObject.get("value");
-
                     //System.out.println("Total number of results: " + jsonArray.length());
 
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -163,7 +167,6 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                         int availableLots = (int) obj_1.get("AvailableLots");
                         String lotType = (String) obj_1.get("LotType");
                         String agency = (String) obj_1.get("Agency");
-
 
                         //Split location: String into latitude: double and longitude: double
                         String[] coordList = location.split(" ");
@@ -179,17 +182,147 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                 e.printStackTrace();
             }
         }
+        try {
+            String token = getToken("566492d4-a351-4aee-8560-247d125645ff");
+            String readLine1=null;
+            ArrayList<Carpark> listOfCarparks = new ArrayList<Carpark>();
+            String lotType;
+            String lotsAvailable;
+            JSONObject carparkLots = new JSONObject();
+            JSONObject jsonObj = new JSONObject();
+            JSONArray carparkLotsList = new JSONArray();
+            String carparkNo, coordinates;
+            URL url1 = new URL("https://www.ura.gov.sg/uraDataService/invokeUraDS?service=Car_Park_Availability");
+            HttpURLConnection connection1 = (HttpURLConnection) url1.openConnection();
+            connection1.setRequestMethod("GET");
+            connection1.setRequestProperty("AccessKey", "566492d4-a351-4aee-8560-247d125645ff");
+            connection1.addRequestProperty("Token", token);
+            BufferedReader in1 = new BufferedReader(new InputStreamReader(connection1.getInputStream()));
+            StringBuffer response1 = new StringBuffer();
+            while ((readLine1 = in1 .readLine()) != null) {
+                response1.append(readLine1);
+            };
+            JSONObject response2 = new JSONObject(response1.toString());
+            while(response2.get("Status").equals("Error"))
+            {
+                Log.v("tag", "error");
+                connection1 = (HttpURLConnection) url1.openConnection();
+                connection1.setRequestMethod("GET");
+                connection1.setRequestProperty("AccessKey", "566492d4-a351-4aee-8560-247d125645ff");
+                connection1.addRequestProperty("Token", token);
+                in1 = new BufferedReader(new InputStreamReader(connection1.getInputStream()));
+                response1 = new StringBuffer();
+                while ((readLine1 = in1 .readLine()) != null) {
+                    response1.append(readLine1);
+                };
+                response2 = new JSONObject(response1.toString());
+            }
+            in1.close();
+            JSONObject jobjectOfCarparks = new JSONObject(response1.toString());
+            JSONArray jsonarrOfCarparks =  jobjectOfCarparks.getJSONArray("Result");
+
+            for(int i=0; i<jsonarrOfCarparks.length(); i++) {
+
+                jsonObj = (JSONObject) jsonarrOfCarparks.get(i);
+                lotType = (String) (jsonObj.get("lotType"));
+
+                if (!lotType.equals("C"))
+                    continue;
+                carparkNo = (String) (jsonObj.get("carparkNo"));
+                JSONArray jsonArrGeomtries = (jsonObj.getJSONArray("geometries"));
+                JSONObject jsonObj2 = (JSONObject) jsonArrGeomtries.get(0);
+                coordinates = (String) jsonObj2.get("coordinates");
+
+                lotsAvailable = (String) (jsonObj.get("lotsAvailable"));
+                Carpark cp = new Carpark(carparkNo, null, null, null, 0, 0, Integer.parseInt(lotsAvailable), "C", "URA");
+                convertSVY21(coordinates, cp);
+                cp.setIconName("ic_" + themeName + "_25");
+                carParkList.add(cp);
+            }
+
+
+        } catch(Exception e)
+        {
+            System.out.println(e);
+        }
+        Log.v("urasize",  ""+carParkList.size());
         instance.setHdbCarparkList(findHDBCarpark(instance));
         instance.setLtaCarparkList(ltaFireBase());
         instance.setUraCarparkList(uraFireBase());
         return carParkList;
+    }
+    public String getToken(String apiKey) {
+        try {
+            URL url = new URL("https://www.ura.gov.sg/uraDataService/insertNewToken.action");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("AccessKey", apiKey);
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36");
+            int responseCode = connection.getResponseCode(); //GET RESPONSE <200>
+            if (responseCode != 200) {
+                throw new RuntimeException("HTTP RESPONSE CODE: " + responseCode);
+            } else {
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuffer response = new StringBuffer();
+                String readLine = null;
+
+                while ((readLine = in.readLine()) != null) {
+                    response.append(readLine);
+                }
+                in.close();
+
+                JSONObject jobject = new JSONObject(response.toString());
+                String token = (String) jobject.get("Result");
+                return token;
+            }
+        }
+        catch(Exception e)
+        {
+            System.out.println(e);
+        }
+        return "";
+    }
+    public void setLatitude(double latitude)
+    {
+        this.latitude = latitude;
+    }
+    public void setLongitude(double longitude)
+    {
+        this.longitude = longitude;
+    }
+    public static void convertSVY21(String coordinates, Carpark cp)
+    {
+        String[] coordList = coordinates.split(",");
+        String x = "X=" + coordList[0];
+        String y = "&Y=" + coordList[1];
+        String url = "https://developers.onemap.sg/commonapi/convert/3414to4326?";
+        Request request = new Request.Builder()
+                .url(url+x+y)
+                .build();
+        OkHttpClient httpClient = new OkHttpClient();
+        try (Response response = httpClient.newCall(request).execute())
+        {
+            if (response.isSuccessful())
+            {
+                Log.v("tag", "successful convertsvy21");
+                JSONObject jsonObject = new JSONObject(response.body().string());
+                double latitude = (double) jsonObject.get("latitude");
+                double longitude = (double) jsonObject.get("longitude");
+                cp.setLatitude(latitude);
+                cp.setLongitude(longitude);
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public ArrayList sortByDistance(Location currentLoc, ArrayList list) {
         ArrayList sorted = new ArrayList();
         ArrayList<Carpark> carparkList = (ArrayList<Carpark>) list;
-        int range = 5000; //1500m //1.5km
+        int range = 1000; //1500m //1.5km
         for (int i = 0; i < carparkList.size(); i++)
         {
             Carpark cp = carparkList.get(i);
@@ -255,15 +388,10 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                 for(DataSnapshot snapshot: dataSnapshot.getChildren()){
                     String carparkNo = (String)snapshot.getKey();
                     String maxRateForCar = (String) snapshot.child("MaxRateForCar").getValue();
-                    String maxRateForHeavyVehicle = (String) snapshot.child("MaxRateForHeavyVehicle").getValue();
-                    String maxRateForMotorcycle = (String) snapshot.child("MaxRateForMotorcycle").getValue();
                     String weekdayAndSatForCar = (String) snapshot.child("WeekdayAndSatForCar").getValue();
-                    String weekdayAndSatForHeavyVehicle =  (String) snapshot.child("WeekdayAndSatForHeavyVehicle").getValue();
-                    String weekdayAndSatForMotorcycle = (String) snapshot.child("WeekdayAndSatForMotorcycle").getValue();
-                    URACarpark newURACarPark = new URACarpark(carparkNo, maxRateForCar, maxRateForHeavyVehicle,maxRateForMotorcycle, weekdayAndSatForCar,
-                            weekdayAndSatForHeavyVehicle,weekdayAndSatForMotorcycle);
+                    String carparkName = (String) snapshot.child("carparkName").getValue();
+                    URACarpark newURACarPark = new URACarpark(carparkNo, maxRateForCar, weekdayAndSatForCar, carparkName);
                     uraCarparkList.add(newURACarPark);
-
                 }
                 done.set(true);
             }
@@ -331,7 +459,6 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
         String s = "";
         ArrayList<Carpark> sortedCarparkList = (ArrayList<Carpark>) list;
         ArrayList<CustomList> listviewItems = new ArrayList<CustomList>();
-        Log.v("a", " size of sorted carpa" + sortedCarparkList.size());
 
         for (int i = 0; i < sortedCarparkList.size(); i++) {
 
@@ -340,8 +467,8 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
             String km = twoDForm.format((sortedCarparkList.get(i).getDistance()) / 1000);
             String textViewFirst = "Distance : " + km + " km";
 
+            String carparkName = sortedCarparkList.get(i).getDevelopment();
             String carparkid = sortedCarparkList.get(i).getCarParkID();
-            Log.v("allcarparklist", " " + carparkid + "   name : " + sortedCarparkList.get(i).getDevelopment() + sortedCarparkList.get(i).getArea()) ;
 
             String agency = sortedCarparkList.get(i).getAgency();
             String carParkType = "a", shortTermParking = "a", nightParking = "a", parkingType = "a", freeParking = "a";
@@ -375,41 +502,31 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                     }
                 }
             }
-
-            Log.v("urasize", "size" + uraCarparkList.size());
-            int count = 0;
-            for (int w = 0; w < uraCarparkList.size(); w++) {
-                Log.v("uracarparknumber", "number " + uraCarparkList.get(w).getCarparkNo());
-
-                if (uraCarparkList.get(w).getCarparkNo().equals(carparkid)) {
-                    Log.v("ura", "ura carparks found " + uraCarparkList.get(w).getCarparkNo() + "ura = " + carparkid);
-                    Log.v("ura", sortedCarparkList.get(i).getDevelopment());
-
-                    weekdayafter5 = "Max rates for Car : \n" + uraCarparkList.get(w).getMaxRateForCar();
-                    weekdaybefore5 = "Max rates for Heavy Vehicle : \n" + uraCarparkList.get(w).getMaxRateForHeavyVehicle();
-                    saturday = "Max rates for Motorcycle : \n" + uraCarparkList.get(w).getMaxRateForMotorcycle();
-                    sundaypubholiday = "Weekday and Saturday rates for Car : \n" + uraCarparkList.get(w).getWeekdayAndSatForCar();
-                    eleven = "Weekday and Saturday for Heavy Vehicles : \n" + uraCarparkList.get(w).getWeekdayAndSatForHeavyVehicle();
-                    twelve = "Weekday and Saturday for Motorcycle : \n" + uraCarparkList.get(w).getWeekdayAndSatForMotorcycle();
-                    count++;
+            if (agency.equals("URA")) {
+                for (int w = 0; w < uraCarparkList.size(); w++) {
+                    if (uraCarparkList.get(w).getCarparkNo().equals(carparkid)) {
+                        carparkName = uraCarparkList.get(w).getCarparkName();
+                        weekdayafter5 = "Max rates for Car : \n" + uraCarparkList.get(w).getMaxRateForCar();
+                        weekdaybefore5 = "Weekday and Saturday rates for Car : \n" + uraCarparkList.get(w).getWeekdayAndSatForCar();
+                    }
                 }
             }
-
-            Log.v("uracount", "count" + count);
 
             if (agency.equals("LTA")) {
                 ArrayList<LTACarpark> ltaCarparkList = instance.getLTACarparkList();
                 for (int j = 0; j < ltaCarparkList.size(); j++) {
-                    if (ltaCarparkList.get(j).getName().equals(sortedCarparkList.get(i).getDevelopment())) {
+                    if (ltaCarparkList.get(j).getName().contains(sortedCarparkList.get(i).getDevelopment())) {
                         weekdayafter5 = "Week Day After 5 : " + ltaCarparkList.get(j).getWeekDayAfter5();
                         weekdaybefore5 = "Week Day Before 5 : " + ltaCarparkList.get(j).getWeekDayBefore5();
                         saturday = "Saturday : " + ltaCarparkList.get(j).getSaturday();
                         sundaypubholiday = "SundayPH : " + ltaCarparkList.get(j).getSundayPubHoliday();
                     }
+
+
                 }
 
             }
-            listviewItems.add(new CustomList(sortedCarparkList.get(i).getDevelopment()
+            listviewItems.add(new CustomList(carparkName
                     , String.valueOf(sortedCarparkList.get(i).getAvailableLots())
                     , textViewFirst
                     , sortedCarparkList.get(i).retrieveLatLng()
@@ -422,8 +539,6 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                     , weekdaybefore5
                     , saturday
                     , sundaypubholiday
-                    , eleven
-                    , twelve
             ));
 
         }

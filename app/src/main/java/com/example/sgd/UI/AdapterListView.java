@@ -50,8 +50,6 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
         holder.textViewEight.setText(helper.getTextViewEight());
         holder.textViewNine.setText(helper.getTextViewNine());
         holder.textViewTen.setText(helper.getTextViewTen());
-        holder.textViewEleven.setText(helper.getTextViewEleven());
-        holder.textViewTwelve.setText(helper.getTextViewTwelve());
 
         boolean isExpanded = listLocations.get(position).isExpanded();
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
@@ -88,16 +86,10 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
             //holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         }
 
-        if(holder.textViewEleven.getText().toString().equals("a")){
-            holder.textViewEleven.setVisibility(View.GONE);
-            holder.textViewTwelve.setVisibility(View.GONE);
+        if(holder.textViewNine.getText().toString().equals("a")){
+            holder.textViewNine.setVisibility(View.GONE);
+            holder.textViewTen.setVisibility(View.GONE);
         }
-
-        /*
-        if(holder.textViewEleven.getVisibility()){
-            holder.textViewEleven.setVisibility(View.GONE);
-            holder.textViewTwelve.setVisibility(View.GONE);
-        }*/
 
     }
 
@@ -126,8 +118,6 @@ public class AdapterListView extends RecyclerView.Adapter<AdapterListView.ViewHo
             textViewEight = itemView.findViewById(R.id.textView8);
             textViewNine = itemView.findViewById(R.id.textView9);
             textViewTen = itemView.findViewById(R.id.textView10);
-            textViewEleven = itemView.findViewById(R.id.textView11);
-            textViewTwelve = itemView.findViewById(R.id.textView12);
 
             titleTextView.setOnClickListener(new View.OnClickListener() {
                 @Override

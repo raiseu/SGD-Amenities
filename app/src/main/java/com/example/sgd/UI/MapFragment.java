@@ -102,7 +102,7 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
                 if (location != null || location.equals("")) {
                     Geocoder geocoder = new Geocoder(mainActivity);
                     try {
-                        addressList = geocoder.getFromLocationName(location, 1);
+                        addressList = geocoder.getFromLocationName(location, 1, 1.14916, 103.598487,1.47317, 104.092349);
                         if ( addressList.size() != 0 && addressList.get(0) != null) {
                             Address address = addressList.get(0);
                             LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
