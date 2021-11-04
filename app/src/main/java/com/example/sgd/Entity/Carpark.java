@@ -145,7 +145,7 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
         String url = "http://datamall2.mytransport.sg/ltaodataservice/CarParkAvailabilityv2?$skip=";
         String dataMallKey = "amWBvG8eT4CtFzLY2QvHYw==";
 
-        for (int skip = 0; skip<=5000; skip+=500) {
+        for (int skip = 0; skip<=3000; skip+=500) {
             Request request = new Request.Builder()
                     .url(url + skip)
                     .addHeader("AccountKey", dataMallKey)
