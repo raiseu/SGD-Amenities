@@ -189,7 +189,7 @@ public class Amenities implements Comparable<Amenities>, DataStoreInterface{
     public ArrayList sortByDistance(Location currentLoc, ArrayList list) {
         ArrayList sorted = new ArrayList();
         ArrayList<Amenities> amenList = (ArrayList<Amenities>) list;
-        int range = 5000;
+        int range = 2500;
         for (int i = 0; i < amenList.size(); i++)
         {
             Amenities amen =  amenList.get(i);

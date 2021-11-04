@@ -550,6 +550,9 @@ public class MainActivity extends AppCompatActivity implements AdapterHorizontal
         listAdapter.notifyDataSetChanged();
         if(listviewbar.getVisibility() == View.VISIBLE){
             listviewbar.setVisibility(View.GONE);
+            favmBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            grid_toggleFavbtn.setChecked(false);
             horizontalBar.setVisibility(View.VISIBLE);
             bottomSheet.setVisibility(View.VISIBLE);
             favbottomSheet.setVisibility(View.VISIBLE);

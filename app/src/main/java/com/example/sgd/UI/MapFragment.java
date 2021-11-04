@@ -227,6 +227,8 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
         gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
     }
 
+
+
     //default location callback
     @SuppressLint("MissingPermission")
     @Override
@@ -241,10 +243,16 @@ public class MapFragment extends Fragment implements GoogleMap.OnMarkerClickList
     public void plotMarkers(ArrayList amenList, String iconName, DataStoreInterface datastore){
         gMap.clear();
         Log.v(debugTag, "iconname : " + iconName );
+        //gMap.addMarker(l)
+
+        //gMap.addMarker(new MarkerOptions(.));
+
         ArrayList<MarkerOptions> markerList = datastore.createMarkers(amenList, getMarkerIcon(iconName));
         for(MarkerOptions m : markerList){
             gMap.addMarker(m);
         }
+
+
         gMap.setOnMarkerClickListener(this);
     }
     public void clearMap(){

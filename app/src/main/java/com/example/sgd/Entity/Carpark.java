@@ -23,6 +23,8 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.OkHttpClient;
@@ -182,8 +184,14 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                 e.printStackTrace();
             }
         }
+        /*
+        for(int a=0; a<carParkList.size();a++){
+            if(carParkList.get(a){
 
-        ///*
+            }
+        }*/
+
+        /*
         try {
             String token = getToken("566492d4-a351-4aee-8560-247d125645ff");
             String readLine1=null;
@@ -248,14 +256,15 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
             System.out.println(e);
         }
         Log.v("urasize",  ""+carParkList.size());
-        //*/
 
+        */
 
         instance.setHdbCarparkList(findHDBCarpark(instance));
         instance.setLtaCarparkList(ltaFireBase());
         instance.setUraCarparkList(uraFireBase());
         return carParkList;
     }
+
     public String getToken(String apiKey) {
         try {
             URL url = new URL("https://www.ura.gov.sg/uraDataService/insertNewToken.action");
@@ -327,7 +336,7 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
     public ArrayList sortByDistance(Location currentLoc, ArrayList list) {
         ArrayList sorted = new ArrayList();
         ArrayList<Carpark> carparkList = (ArrayList<Carpark>) list;
-        int range = 1000; //1500m //1.5km
+        int range = 2500; //1500m //1.5km
         for (int i = 0; i < carparkList.size(); i++)
         {
             Carpark cp = carparkList.get(i);
@@ -465,6 +474,10 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
         ArrayList<Carpark> sortedCarparkList = (ArrayList<Carpark>) list;
         ArrayList<CustomList> listviewItems = new ArrayList<CustomList>();
 
+
+
+
+
         for (int i = 0; i < sortedCarparkList.size(); i++) {
 
 
@@ -508,9 +521,10 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
             }
             if (agency.equals("URA")) {
                 for (int w = 0; w < uraCarparkList.size(); w++) {
+
                     if (uraCarparkList.get(w).getCarparkNo().equals(carparkid)) {
+                        Log.v("URAsadas", sortedCarparkList.get(i).getDevelopment());
                         carParkType = sortedCarparkList.get(i).getAgency();
-                        carparkName = uraCarparkList.get(w).getCarparkName();
                         weekdayafter5 = "Max rates for Car : \n" + uraCarparkList.get(w).getMaxRateForCar();
                         weekdaybefore5 = "Weekday and Saturday rates for Car : \n" + uraCarparkList.get(w).getWeekdayAndSatForCar();
                     }
@@ -520,6 +534,7 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
             if (agency.equals("LTA")) {
                 ArrayList<LTACarpark> ltaCarparkList = instance.getLTACarparkList();
                 for (int j = 0; j < ltaCarparkList.size(); j++) {
+                    Log.v("LTAhere", sortedCarparkList.get(i).getDevelopment());
                     if (ltaCarparkList.get(j).getName().contains(sortedCarparkList.get(i).getDevelopment())) {
                         carParkType = sortedCarparkList.get(i).getAgency();
                         weekdayafter5 = "Week Day After 5 : " + ltaCarparkList.get(j).getWeekDayAfter5();
@@ -527,25 +542,27 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                         saturday = "Saturday : " + ltaCarparkList.get(j).getSaturday();
                         sundaypubholiday = "SundayPH : " + ltaCarparkList.get(j).getSundayPubHoliday();
                     }
-
-
                 }
-
             }
-            listviewItems.add(new CustomList(carparkName
-                    , String.valueOf(sortedCarparkList.get(i).getAvailableLots())
-                    , textViewFirst
-                    , sortedCarparkList.get(i).retrieveLatLng()
-                    , carParkType
-                    , parkingType
-                    , shortTermParking
-                    , freeParking
-                    , nightParking
-                    , weekdayafter5
-                    , weekdaybefore5
-                    , saturday
-                    , sundaypubholiday
-            ));
+            //if (agency.equals("URA")) {
+                //Log.v("PRINT ME URA", "HI" + sortedCarparkList.get(i).getDevelopment() + sortedCarparkList.get(i).getAvailableLots());
+           // }
+            if(sortedCarparkList.get(i).getAvailableLots() != 0) {
+                listviewItems.add(new CustomList(carparkName
+                        , String.valueOf(sortedCarparkList.get(i).getAvailableLots())
+                        , textViewFirst
+                        , sortedCarparkList.get(i).retrieveLatLng()
+                        , carParkType
+                        , parkingType
+                        , shortTermParking
+                        , freeParking
+                        , nightParking
+                        , weekdayafter5
+                        , weekdaybefore5
+                        , saturday
+                        , sundaypubholiday
+                ));
+            }
 
         }
         return listviewItems;
