@@ -191,7 +191,7 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
             }
         }*/
 
-        /*
+        ///*
         try {
             String token = getToken("566492d4-a351-4aee-8560-247d125645ff");
             String readLine1=null;
@@ -257,7 +257,7 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
         }
         Log.v("urasize",  ""+carParkList.size());
 
-        */
+        //*/
 
         instance.setHdbCarparkList(findHDBCarpark(instance));
         instance.setLtaCarparkList(ltaFireBase());
@@ -523,7 +523,8 @@ public class Carpark implements Comparable<Carpark>, DataStoreInterface{
                 for (int w = 0; w < uraCarparkList.size(); w++) {
 
                     if (uraCarparkList.get(w).getCarparkNo().equals(carparkid)) {
-                        Log.v("URAsadas", sortedCarparkList.get(i).getDevelopment());
+                        //Log.v("URAsadas", sortedCarparkList.get(i).getDevelopment());
+                        carparkName = uraCarparkList.get(w).getCarparkName();
                         carParkType = sortedCarparkList.get(i).getAgency();
                         weekdayafter5 = "Max rates for Car : \n" + uraCarparkList.get(w).getMaxRateForCar();
                         weekdaybefore5 = "Weekday and Saturday rates for Car : \n" + uraCarparkList.get(w).getWeekdayAndSatForCar();
